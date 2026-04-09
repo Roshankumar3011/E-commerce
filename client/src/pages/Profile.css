@@ -1,0 +1,14 @@
+.profile-page { padding-bottom: 60px; }
+.profile-grid { display: grid; grid-template-columns: 360px 1fr; gap: 24px; padding: 24px 0; align-items: start; }
+.profile-card { padding: 32px; text-align: center; }
+.profile-avatar { margin-bottom: 20px; }
+.avatar-circle { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #2874f0, #667eea); color: white; font-size: 32px; font-weight: 800; display: flex; align-items: center; justify-content: center; margin: 0 auto; }
+.profile-fields { display: flex; flex-direction: column; gap: 16px; text-align: left; }
+.profile-field { display: flex; gap: 12px; align-items: flex-start; }
+.profile-field svg { margin-top: 4px; color: var(--primary); flex-shrink: 0; }
+.profile-field label { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
+.profile-field p { font-size: 15px; font-weight: 500; }
+.profile-right { display: flex; flex-direction: column; gap: 16px; }
+.address-card { display: flex; justify-content: space-between; align-items: flex-start; padding: 14px; border: 1px solid var(--border-light); border-radius: 8px; margin-bottom: 8px; }
+.address-card p { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+@media (max-width: 768px) { .profile-grid { grid-template-columns: 1fr; } }

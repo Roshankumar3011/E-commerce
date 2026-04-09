@@ -1,0 +1,37 @@
+.order-detail-page { padding: 32px 0 60px; }
+.order-detail-page h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+.order-detail-date { font-size: 14px; color: var(--text-secondary); margin-bottom: 24px; }
+
+.status-tracker { padding: 32px; border-radius: 12px; margin-bottom: 24px; }
+.tracker-steps { display: flex; justify-content: space-between; position: relative; }
+.tracker-steps::before { content: ''; position: absolute; top: 20px; left: 40px; right: 40px; height: 3px; background: var(--border); z-index: 0; }
+.tracker-step { display: flex; flex-direction: column; align-items: center; gap: 8px; position: relative; z-index: 1; }
+.step-circle { width: 42px; height: 42px; border-radius: 50%; background: var(--border); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: var(--text-secondary); transition: var(--transition); }
+.tracker-step.completed .step-circle { background: #388e3c; color: white; }
+.tracker-step.current .step-circle { background: var(--primary); color: white; box-shadow: 0 0 0 4px rgba(40,116,240,0.2); animation: pulse 2s infinite; }
+.step-label { font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+.tracker-step.completed .step-label { color: #388e3c; }
+.tracker-step.current .step-label { color: var(--primary); }
+
+.cancelled-banner { padding: 20px; border-radius: 12px; background: #fff5f5; color: #c62828; font-weight: 600; font-size: 15px; display: flex; align-items: center; gap: 10px; margin-bottom: 24px; border: 1px solid #ffcdd2; }
+
+.order-detail-grid { display: grid; grid-template-columns: 1fr 380px; gap: 20px; }
+.order-detail-sidebar { display: flex; flex-direction: column; gap: 16px; }
+
+.od-item { display: flex; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--border-light); align-items: center; }
+.od-item:last-child { border-bottom: none; }
+.od-item img { width: 72px; height: 90px; border-radius: 8px; object-fit: cover; }
+.od-item-info { flex: 1; }
+.od-item-name { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.od-item-info span { display: block; font-size: 12px; color: var(--text-secondary); }
+.od-item-price { text-align: right; }
+.od-item-price strong { display: block; font-size: 15px; }
+.od-item-price span { font-size: 12px; color: var(--text-secondary); }
+
+@media (max-width: 768px) {
+  .order-detail-grid { grid-template-columns: 1fr; }
+  .tracker-steps { gap: 4px; }
+  .tracker-steps::before { left: 20px; right: 20px; }
+  .step-circle { width: 32px; height: 32px; font-size: 12px; }
+  .step-label { font-size: 10px; }
+}

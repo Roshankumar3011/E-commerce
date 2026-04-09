@@ -1,47 +1,48 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
 
 :root {
-  /* Flipkart-inspired color palette */
-  --primary: #2874f0;
-  --primary-dark: #1a5dc8;
-  --primary-light: #e8f0fe;
-  --secondary: #fb641b;
-  --secondary-dark: #e55a15;
-  --accent: #ff9f00;
+  /* Blinkit-inspired color palette */
+  --primary: #F8CB46;
+  --primary-dark: #EDBB2E;
+  --primary-light: #fff9e6;
+  --secondary: #000000;
+  --secondary-dark: #1a1a1a;
+  --accent: #F8CB46;
   --success: #26a541;
   --danger: #ff4444;
-  --warning: #ff9f00;
-  --info: #2874f0;
+  --warning: #F8CB46;
+  --info: #000000;
 
   /* Neutrals */
-  --bg-primary: #f1f3f6;
+  --bg-primary: #f8f8f8;
   --bg-white: #ffffff;
-  --bg-dark: #1a1a2e;
+  --bg-dark: #000000;
   --bg-card: #ffffff;
-  --bg-hover: #f5f5f5;
+  --bg-hover: #f1f1f1;
 
-  --text-primary: #212121;
-  --text-secondary: #666666;
-  --text-muted: #999999;
+  --text-primary: #000000;
+  --text-secondary: #4a4a4a;
+  --text-muted: #8c8c8c;
   --text-light: #ffffff;
-  --text-link: #2874f0;
+  --text-link: #4185f4;
 
   --border: #e0e0e0;
   --border-light: #f0f0f0;
-  --shadow-sm: 0 1px 4px rgba(0,0,0,0.08);
-  --shadow-md: 0 2px 8px rgba(0,0,0,0.1);
-  --shadow-lg: 0 4px 16px rgba(0,0,0,0.12);
-  --shadow-xl: 0 8px 32px rgba(0,0,0,0.15);
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+  --shadow-xl: 0 12px 48px rgba(0,0,0,0.15);
 
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
-  --radius-full: 50%;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 999px;
 
-  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --transition: all 0.35s cubic-bezier(0.65, 0, 0.35, 1);
+  --font: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
 }
+
 
 * {
   margin: 0;
@@ -124,13 +125,14 @@ input, select, textarea {
 
 .btn-primary {
   background: var(--primary);
-  color: white;
+  color: #000;
 }
 .btn-primary:hover {
   background: var(--primary-dark);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(40, 116, 240, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(248, 203, 70, 0.4);
 }
+
 
 .btn-secondary {
   background: var(--secondary);

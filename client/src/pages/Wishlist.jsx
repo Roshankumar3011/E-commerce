@@ -3,6 +3,7 @@ import { FiTrash2, FiShoppingCart } from 'react-icons/fi';
 import { useWishlist } from '../context/WishlistContext';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { getProductImage } from '../utils/assets';
 import toast from 'react-hot-toast';
 import './Wishlist.css';
 
@@ -31,8 +32,9 @@ const Wishlist = () => {
             {products.map((product) => (
               <div key={product._id} className="wishlist-card card">
                 <Link to={`/product/${product._id}`} className="wl-img">
-                  <img src={product.images?.[0] || 'https://via.placeholder.com/200'} alt={product.name} />
+                  <img src={getProductImage(product.images?.[0], 'https://via.placeholder.com/200')} alt={product.name} />
                 </Link>
+
                 <div className="wl-info">
                   <p className="wl-brand">{product.brand}</p>
                   <Link to={`/product/${product._id}`}><h3>{product.name}</h3></Link>

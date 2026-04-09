@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { FiArrowRight, FiTruck, FiRefreshCw, FiShield, FiCreditCard } from 'react-icons/fi';
+import { FiArrowRight, FiTruck, FiRefreshCw, FiShield, FiCreditCard, FiChevronLeft, FiChevronRight, FiSun, FiUser, FiHeart } from 'react-icons/fi';
 import API from '../utils/api';
 import ProductCard from '../components/ProductCard';
+import Loader from '../components/Loader';
+import summerHero from '../assets/hero-summer.png';
 import './Home.css';
 
 const Home = () => {
@@ -25,51 +27,62 @@ const Home = () => {
 
   const bannerSlides = [
     {
-      title: "Summer Collection '24",
-      subtitle: 'Up to 70% off on trending styles',
-      cta: 'Shop Now',
+      title: "LUXURY SUMMER 24",
+      subtitle: 'Exclusive AI-Designed Collection starting at ₹899',
+      cta: 'Explore Collection',
       link: '/products',
-      gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      emoji: '☀️',
+      image: summerHero,
+      gradient: 'linear-gradient(90deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 100%)',
+      icon: <FiSun />,
     },
     {
-      title: 'Men\'s Fashion',
-      subtitle: 'Premium brands at unbeatable prices',
-      cta: 'Explore Men',
+      title: 'URBAN STREETWEAR',
+      subtitle: 'The best of global brands now in Yellow',
+      cta: 'Shop Men',
       link: '/products/Men',
-      gradient: 'linear-gradient(135deg, #2874f0 0%, #0d47a1 100%)',
-      emoji: '👔',
+      image: 'https://images.unsplash.com/photo-1490578474895-699cd4e2cf59?w=1600',
+      gradient: 'linear-gradient(90deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 100%)',
+      icon: <FiUser />,
     },
     {
-      title: 'Women\'s Collection',
-      subtitle: 'Elegant styles for every occasion',
+      title: 'ELEGANCE REDEFINED',
+      subtitle: 'Exclusive discounts on luxury wear',
       cta: 'Shop Women',
       link: '/products/Women',
-      gradient: 'linear-gradient(135deg, #e91e63 0%, #ad1457 100%)',
-      emoji: '👗',
+      image: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1600',
+      gradient: 'linear-gradient(90deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.3) 100%)',
+      icon: <FiHeart />,
     },
   ];
 
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+
+  const nextSlide = useCallback(() => {
+    setCurrentSlide((prev) => (prev + 1) % bannerSlides.length);
+  }, [bannerSlides.length]);
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + bannerSlides.length) % bannerSlides.length);
+    handleManualAction();
+  };
+
+  const handleManualAction = () => {
+    setIsPaused(true);
+    setTimeout(() => setIsPaused(false), 10000);
+  };
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % bannerSlides.length);
-    }, 5000);
+    if (isPaused) return;
+    const timer = setInterval(nextSlide, 5000);
     return () => clearInterval(timer);
-  }, []);
-
-  const categories = [
-    { name: 'Men', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop', color: '#e3f2fd' },
-    { name: 'Women', image: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=200&h=200&fit=crop', color: '#fce4ec' },
-    { name: 'Kids', image: 'https://images.unsplash.com/photo-1503944583220-79d8926ad5e2?w=200&h=200&fit=crop', color: '#fff3e0' },
-  ];
+  }, [nextSlide, isPaused]);
 
   const features = [
-    { icon: <FiTruck />, title: 'Free Shipping', desc: 'On orders above ₹499' },
-    { icon: <FiRefreshCw />, title: 'Easy Returns', desc: '7-day return policy' },
-    { icon: <FiShield />, title: 'Secure Payment', desc: '100% secure checkout' },
-    { icon: <FiCreditCard />, title: 'COD Available', desc: 'Cash on delivery' },
+    { icon: <FiTruck />, title: 'EXPRESS DELIVERY', desc: 'Arriving in 1-2 business days' },
+    { icon: <FiRefreshCw />, title: 'REFUND POLICY', desc: 'Worry-free 7-day returns' },
+    { icon: <FiShield />, title: 'AUTHENTICITY', desc: '100% verified genuine products' },
+    { icon: <FiCreditCard />, title: 'EASY CHECKOUT', desc: 'UPI, Cards & Net Banking' },
   ];
 
   return (
@@ -80,26 +93,39 @@ const Home = () => {
           <div
             key={idx}
             className={`hero-slide ${idx === currentSlide ? 'active' : ''}`}
-            style={{ background: slide.gradient }}
+            style={{ 
+              backgroundImage: `${slide.gradient}, url(${slide.image})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center'
+            }}
           >
             <div className="container">
               <div className="hero-content">
-                <span className="hero-emoji">{slide.emoji}</span>
-                <h1>{slide.title}</h1>
-                <p>{slide.subtitle}</p>
-                <Link to={slide.link} className="btn btn-lg hero-cta">
+                <div className="hero-icon stagger-in stagger-delay-1">{slide.icon}</div>
+                <h1 className="stagger-in stagger-delay-2">{slide.title}</h1>
+                <p className="stagger-in stagger-delay-3">{slide.subtitle}</p>
+                <Link to={slide.link} className="btn btn-lg hero-cta stagger-in stagger-delay-4">
                   {slide.cta} <FiArrowRight />
                 </Link>
               </div>
             </div>
           </div>
         ))}
+        
+        {/* Banner Navigation Arrows */}
+        <button className="banner-nav prev" onClick={prevSlide}>
+          <FiChevronLeft />
+        </button>
+        <button className="banner-nav next" onClick={() => { nextSlide(); handleManualAction(); }}>
+          <FiChevronRight />
+        </button>
+
         <div className="hero-dots">
           {bannerSlides.map((_, idx) => (
             <button
               key={idx}
               className={`dot ${idx === currentSlide ? 'active' : ''}`}
-              onClick={() => setCurrentSlide(idx)}
+              onClick={() => { setCurrentSlide(idx); handleManualAction(); }}
             />
           ))}
         </div>
@@ -122,22 +148,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Category Circles */}
-      <section className="section">
-        <div className="container">
-          <h2 className="section-title">Shop by Category</h2>
-          <div className="category-circles">
-            {categories.map((cat) => (
-              <Link to={`/products/${cat.name}`} key={cat.name} className="category-circle">
-                <div className="cat-img-wrap" style={{ background: cat.color }}>
-                  <img src={cat.image} alt={cat.name} />
-                </div>
-                <span>{cat.name}</span>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* Top Deals */}
       <section className="section deals-section">
@@ -149,18 +159,7 @@ const Home = () => {
             </Link>
           </div>
           {loading ? (
-            <div className="product-grid">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="skeleton-card">
-                  <div className="skeleton" style={{ height: 280 }} />
-                  <div style={{ padding: 14 }}>
-                    <div className="skeleton" style={{ height: 12, width: '60%', marginBottom: 8 }} />
-                    <div className="skeleton" style={{ height: 14, width: '90%', marginBottom: 8 }} />
-                    <div className="skeleton" style={{ height: 16, width: '40%' }} />
-                  </div>
-                </div>
-              ))}
-            </div>
+            <Loader />
           ) : (
             <div className="product-grid">
               {products.slice(0, 8).map((product) => (
@@ -175,29 +174,41 @@ const Home = () => {
       <section className="promo-section">
         <div className="container">
           <div className="promo-grid">
-            <div className="promo-card promo-men" style={{ background: 'linear-gradient(135deg, #1a237e, #283593)' }}>
+            <div className="promo-card promo-men" style={{ 
+              backgroundImage: 'linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.8)), url(https://images.unsplash.com/photo-1490578474895-699cd4e2cf59?w=800)',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center'
+            }}>
               <div className="promo-content">
-                <h3>Men's Fashion</h3>
+                <h3>Men's Collection</h3>
                 <p>Starting from ₹499</p>
-                <Link to="/products/Men" className="btn btn-sm" style={{ background: 'white', color: '#1a237e' }}>
+                <Link to="/products/Men" className="btn btn-sm hero-cta">
                   Shop Now <FiArrowRight />
                 </Link>
               </div>
             </div>
-            <div className="promo-card promo-women" style={{ background: 'linear-gradient(135deg, #880e4f, #ad1457)' }}>
+            <div className="promo-card promo-women" style={{ 
+              backgroundImage: 'linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.8)), url(https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800)',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center'
+            }}>
               <div className="promo-content">
-                <h3>Women's Collection</h3>
+                <h3>Women's Stylings</h3>
                 <p>Up to 60% off</p>
-                <Link to="/products/Women" className="btn btn-sm" style={{ background: 'white', color: '#880e4f' }}>
+                <Link to="/products/Women" className="btn btn-sm hero-cta">
                   Shop Now <FiArrowRight />
                 </Link>
               </div>
             </div>
-            <div className="promo-card promo-kids" style={{ background: 'linear-gradient(135deg, #e65100, #f57c00)' }}>
+            <div className="promo-card promo-kids" style={{ 
+              backgroundImage: 'linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.8)), url(https://images.unsplash.com/photo-1519238263530-99bdd11df2ea?w=800)',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center'
+            }}>
               <div className="promo-content">
-                <h3>Kids' Wear</h3>
+                <h3>Kids' Hub</h3>
                 <p>Buy 2 Get 1 Free</p>
-                <Link to="/products/Kids" className="btn btn-sm" style={{ background: 'white', color: '#e65100' }}>
+                <Link to="/products/Kids" className="btn btn-sm hero-cta">
                   Shop Now <FiArrowRight />
                 </Link>
               </div>
@@ -207,7 +218,7 @@ const Home = () => {
       </section>
 
       {/* New Arrivals */}
-      <section className="section">
+      <section className="section arrivals-section">
         <div className="container">
           <div className="section-header">
             <h2 className="section-title">New Arrivals ✨</h2>

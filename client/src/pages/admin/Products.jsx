@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FiPlus, FiEdit, FiTrash2, FiSearch } from 'react-icons/fi';
+import { FiPlus, FiEdit, FiTrash2, FiSearch, FiStar } from 'react-icons/fi';
 import { AdminLayout } from './Dashboard';
 import API from '../../utils/api';
+import { getProductImage } from '../../utils/assets';
 import toast from 'react-hot-toast';
 import './Admin.css';
 
@@ -71,7 +72,8 @@ const AdminProducts = () => {
               <tbody>
                 {products.map((p) => (
                   <tr key={p._id}>
-                    <td><img src={p.images?.[0] || 'https://via.placeholder.com/40'} alt="" style={{ width: 44, height: 55, borderRadius: 6, objectFit: 'cover' }} /></td>
+                    <td><img src={getProductImage(p.images?.[0], 'https://via.placeholder.com/40')} alt="" style={{ width: 44, height: 55, borderRadius: 6, objectFit: 'cover' }} /></td>
+
                     <td style={{ maxWidth: 200, fontWeight: 500 }}>{p.name}</td>
                     <td>{p.brand}</td>
                     <td>
@@ -83,7 +85,7 @@ const AdminProducts = () => {
                         {p.totalStock}
                       </span>
                     </td>
-                    <td>{p.ratings?.average || 0} ⭐ ({p.ratings?.count || 0})</td>
+                    <td><FiStar style={{ color: 'var(--primary)', fill: 'var(--primary)', marginRight: 4 }} /> {p.ratings?.average || 0} ({p.ratings?.count || 0})</td>
                     <td>
                       <div style={{ display: 'flex', gap: 6 }}>
                         <Link to={`/admin/products/edit/${p._id}`} className="btn btn-ghost btn-sm" title="Edit"><FiEdit /></Link>

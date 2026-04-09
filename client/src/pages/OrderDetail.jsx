@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FiCheck, FiTruck, FiPackage, FiMapPin } from 'react-icons/fi';
 import API from '../utils/api';
+import { getProductImage } from '../utils/assets';
 import toast from 'react-hot-toast';
 import './OrderDetail.css';
 
@@ -80,7 +81,8 @@ const OrderDetail = () => {
             <h3 style={{ marginBottom: 16, fontSize: 16, fontWeight: 700 }}>Order Items</h3>
             {order.items.map((item, i) => (
               <div key={i} className="od-item">
-                <img src={item.image || 'https://via.placeholder.com/80'} alt={item.name} />
+                <img src={getProductImage(item.image, 'https://via.placeholder.com/80')} alt={item.name} />
+
                 <div className="od-item-info">
                   <p className="od-item-name">{item.name}</p>
                   <span>Size: {item.size} {item.color?.name ? `· Color: ${item.color.name}` : ''}</span>

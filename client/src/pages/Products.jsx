@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { FiFilter, FiX, FiChevronDown } from 'react-icons/fi';
 import API from '../utils/api';
 import ProductCard from '../components/ProductCard';
+import Loader from '../components/Loader';
 import './Products.css';
 
 const Products = () => {
   const { gender } = useParams();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -67,7 +69,9 @@ const Products = () => {
       if (filters.search) params.set('search', filters.search);
 
       const res = await API.get(`/products?${params}`);
-      setProducts(res.data.products);
+      // Filter out products with no images (Safety Check)
+      const validProducts = (res.data.products || []).filter(p => p.images && p.images.length > 0);
+      setProducts(validProducts);
       setPagination(res.data.pagination);
     } catch (err) {
       console.error(err);
@@ -123,19 +127,53 @@ const Products = () => {
               </div>
             </div>
 
+            {/* Gender */}
+            <div className="filter-group">
+              <h4>Gender</h4>
+              <div className="filter-options">
+                {['Men', 'Women', 'Kids'].map((g) => (
+                  <label key={g} className="filter-option">
+                    <input
+                      type="radio"
+                      name="gender_select"
+                      checked={gender === g}
+                      onChange={() => navigate(`/products/${g}${filters.category ? `?category=${filters.category}` : ''}`)}
+                    />
+                    <span>{g}</span>
+                  </label>
+                ))}
+                <label className="filter-option">
+                    <input
+                      type="radio"
+                      name="gender_select"
+                      checked={!gender}
+                      onChange={() => navigate(`/products`)}
+                    />
+                    <span>All</span>
+                  </label>
+              </div>
+            </div>
+
             {/* Category */}
             <div className="filter-group">
-              <h4>Category <FiChevronDown /></h4>
+              <h4>Category</h4>
               <div className="filter-options">
-                {categories.map((cat) => (
-                  <label key={cat._id} className="filter-option">
+                {categories
+                  .filter(cat => !['Men', 'Women', 'Kids'].includes(cat.name)) // Hide roots that match Genders
+                  .map((cat) => (
+                  <label 
+                    key={cat._id} 
+                    className={`filter-option ${cat.parent ? 'is-child' : ''}`}
+                  >
                     <input
                       type="radio"
                       name="category"
                       checked={filters.category === cat._id}
                       onChange={() => handleFilterChange('category', filters.category === cat._id ? '' : cat._id)}
                     />
-                    <span>{cat.name}</span>
+                    <span>
+                      {cat.name}
+                    </span>
                   </label>
                 ))}
               </div>
@@ -143,7 +181,7 @@ const Products = () => {
 
             {/* Brand */}
             <div className="filter-group">
-              <h4>Brand <FiChevronDown /></h4>
+              <h4>Brand</h4>
               <div className="filter-options">
                 {brands.map((brand) => (
                   <label key={brand} className="filter-option">
@@ -164,7 +202,7 @@ const Products = () => {
               <h4>Price Range</h4>
               <div className="price-inputs">
                 <input type="number" placeholder="Min" value={filters.minPrice} onChange={(e) => handleFilterChange('minPrice', e.target.value)} />
-                <span>to</span>
+                <span>-</span>
                 <input type="number" placeholder="Max" value={filters.maxPrice} onChange={(e) => handleFilterChange('maxPrice', e.target.value)} />
               </div>
             </div>
@@ -181,24 +219,6 @@ const Products = () => {
                   >
                     {size}
                   </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Rating */}
-            <div className="filter-group">
-              <h4>Customer Rating</h4>
-              <div className="filter-options">
-                {[4, 3, 2].map((r) => (
-                  <label key={r} className="filter-option">
-                    <input
-                      type="radio"
-                      name="rating"
-                      checked={filters.rating === String(r)}
-                      onChange={() => handleFilterChange('rating', filters.rating === String(r) ? '' : String(r))}
-                    />
-                    <span>{r}★ & above</span>
-                  </label>
                 ))}
               </div>
             </div>
@@ -223,18 +243,7 @@ const Products = () => {
             </div>
 
             {loading ? (
-              <div className="product-grid">
-                {[...Array(8)].map((_, i) => (
-                  <div key={i} className="skeleton-card">
-                    <div className="skeleton" style={{ height: 280 }} />
-                    <div style={{ padding: 14 }}>
-                      <div className="skeleton" style={{ height: 12, width: '60%', marginBottom: 8 }} />
-                      <div className="skeleton" style={{ height: 14, width: '90%', marginBottom: 8 }} />
-                      <div className="skeleton" style={{ height: 16, width: '40%' }} />
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <Loader />
             ) : products.length === 0 ? (
               <div className="empty-state">
                 <div className="empty-icon">🔍</div>

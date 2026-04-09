@@ -5,6 +5,7 @@ import API from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
+import { getProductImage } from '../utils/assets';
 import toast from 'react-hot-toast';
 import './ProductDetail.css';
 
@@ -129,15 +130,16 @@ const ProductDetail = () => {
                   className={`thumb ${selectedImage === idx ? 'active' : ''}`}
                   onClick={() => setSelectedImage(idx)}
                 >
-                  <img src={img} alt={`${product.name} ${idx + 1}`} />
+                  <img src={getProductImage(img)} alt={`${product.name} ${idx + 1}`} />
                 </button>
               ))}
             </div>
             <div className="gallery-main">
               <img
-                src={product.images?.[selectedImage] || 'https://via.placeholder.com/500'}
+                src={getProductImage(product.images?.[selectedImage], 'https://via.placeholder.com/500')}
                 alt={product.name}
               />
+
               {discount > 0 && <span className="detail-discount-badge">{discount}% OFF</span>}
             </div>
           </div>

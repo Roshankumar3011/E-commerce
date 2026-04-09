@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { FiTrash2, FiPlus, FiMinus, FiShoppingBag, FiArrowRight } from 'react-icons/fi';
 import { useCart } from '../context/CartContext';
+import { getProductImage } from '../utils/assets';
 import './Cart.css';
 
 const Cart = () => {
@@ -42,8 +43,9 @@ const Cart = () => {
             {cart.items.map((item) => (
               <div key={item._id} className="cart-item card">
                 <Link to={`/product/${item.product?._id}`} className="cart-item-img">
-                  <img src={item.product?.images?.[0] || 'https://via.placeholder.com/120'} alt={item.product?.name} />
+                  <img src={getProductImage(item.product?.images?.[0], 'https://via.placeholder.com/120')} alt={item.product?.name} />
                 </Link>
+
 
                 <div className="cart-item-details">
                   <Link to={`/product/${item.product?._id}`}>

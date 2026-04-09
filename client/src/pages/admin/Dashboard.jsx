@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { FiHome, FiPackage, FiShoppingBag, FiUsers, FiLogOut, FiPlus, FiTrendingUp, FiAlertTriangle, FiMenu, FiX } from 'react-icons/fi';
+import { FiHome, FiPackage, FiShoppingBag, FiUsers, FiLogOut, FiPlus, FiTrendingUp, FiAlertTriangle, FiGrid, FiUser } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
 import API from '../../utils/api';
 import './Admin.css';
@@ -9,37 +9,35 @@ const AdminLayout = ({ children, title }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const navItems = [
     { path: '/admin', icon: <FiHome />, label: 'Dashboard' },
     { path: '/admin/products', icon: <FiShoppingBag />, label: 'Products' },
+    { path: '/admin/categories', icon: <FiGrid />, label: 'Categories' },
     { path: '/admin/orders', icon: <FiPackage />, label: 'Orders' },
     { path: '/admin/users', icon: <FiUsers />, label: 'Users' },
   ];
 
   return (
     <div className="admin-layout">
-      <aside className={`admin-sidebar ${sidebarOpen ? 'open' : ''}`}>
+      <aside className="admin-sidebar">
         <div className="admin-sidebar-header">
           <Link to="/admin" className="admin-logo">
-            <span>Flip</span><span className="accent">Style</span>
-            <small>Admin Panel</small>
+            <span>FLIP</span><span className="accent">STYLE</span>
           </Link>
-          <button className="sidebar-close" onClick={() => setSidebarOpen(false)}><FiX /></button>
         </div>
         <nav className="admin-nav">
           {navItems.map((item) => (
-            <Link key={item.path} to={item.path} className={`admin-nav-item ${location.pathname === item.path ? 'active' : ''}`} onClick={() => setSidebarOpen(false)}>
+            <Link key={item.path} to={item.path} className={`admin-nav-item ${location.pathname === item.path ? 'active' : ''}`}>
               {item.icon} {item.label}
             </Link>
           ))}
-          <Link to="/admin/products/add" className="admin-nav-item add-btn" onClick={() => setSidebarOpen(false)}>
+          <Link to="/admin/products/add" className="admin-nav-item add-btn">
             <FiPlus /> Add Product
           </Link>
         </nav>
         <div className="admin-sidebar-footer">
-          <Link to="/" className="admin-nav-item">🏠 View Store</Link>
+          <Link to="/" className="admin-nav-item"><FiHome /> View Store</Link>
           <button className="admin-nav-item logout" onClick={() => { logout(); navigate('/'); }}>
             <FiLogOut /> Logout
           </button>
@@ -47,9 +45,8 @@ const AdminLayout = ({ children, title }) => {
       </aside>
       <div className="admin-content">
         <header className="admin-topbar">
-          <button className="sidebar-toggle" onClick={() => setSidebarOpen(true)}><FiMenu /></button>
           <h1>{title}</h1>
-          <div className="admin-user">👤 {user?.name}</div>
+          <div className="admin-user"><FiUser /> {user?.name}</div>
         </header>
         <div className="admin-body">{children}</div>
       </div>

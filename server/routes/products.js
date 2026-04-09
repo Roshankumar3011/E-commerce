@@ -2,6 +2,22 @@ const router = require('express').Router();
 const Product = require('../models/Product');
 const { protect, admin } = require('../middleware/auth');
 
+// Helper to get all child category IDs recursively
+const getChildCategoryIds = async (parentId) => {
+  const Category = require('../models/Category');
+  let childIds = [parentId];
+  const children = await Category.find({ parent: parentId, isActive: true });
+  
+  if (children.length > 0) {
+    const tasks = children.map(child => getChildCategoryIds(child._id));
+    const nestedIds = await Promise.all(tasks);
+    nestedIds.forEach(ids => {
+      childIds = childIds.concat(ids);
+    });
+  }
+  return childIds;
+};
+
 // Get all products with filtering, sorting, pagination
 router.get('/', async (req, res) => {
   try {
@@ -23,7 +39,12 @@ router.get('/', async (req, res) => {
     const query = { isActive: true };
 
     if (gender) query.gender = gender;
-    if (category) query.category = category;
+    
+    if (category) {
+      const allCategoryIds = await getChildCategoryIds(category);
+      query.category = { $in: allCategoryIds };
+    }
+
     if (brand) query.brand = { $in: brand.split(',') };
     if (size) query['sizes.size'] = { $in: size.split(',') };
     if (color) query['colors.name'] = { $in: color.split(',') };

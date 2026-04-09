@@ -1,9 +1,26 @@
 const router = require('express').Router();
+const path = require('path');
 const User = require('../models/User');
 const Product = require('../models/Product');
 const Order = require('../models/Order');
 const Category = require('../models/Category');
 const { protect, admin } = require('../middleware/auth');
+const upload = require('../middleware/upload');
+const cloudinaryService = require('../services/cloudinaryService');
+
+// Image upload
+router.post('/upload', protect, admin, upload.single('image'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'Please upload a file' });
+    }
+    const url = await cloudinaryService.uploadImage(req.file);
+    res.json({ success: true, url });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 
 // Dashboard stats
 router.get('/dashboard', protect, admin, async (req, res) => {

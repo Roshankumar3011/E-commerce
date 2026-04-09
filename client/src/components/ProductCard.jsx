@@ -1,19 +1,30 @@
 import { Link } from 'react-router-dom';
-import { FiHeart, FiStar } from 'react-icons/fi';
+import { FiHeart, FiStar, FiPlus } from 'react-icons/fi';
 import { useWishlist } from '../context/WishlistContext';
 import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext';
+import { getProductImage } from '../utils/assets';
+import toast from 'react-hot-toast';
 import './ProductCard.css';
 
 const ProductCard = ({ product }) => {
   const { toggleWishlist, isInWishlist } = useWishlist();
+  const { addToCart } = useCart();
   const { user } = useAuth();
   const inWishlist = isInWishlist(product._id);
 
   const handleWishlist = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!user) return;
+    if (!user) return toast.error('Please login to wishlist');
     toggleWishlist(product._id);
+  };
+
+  const handleQuickAdd = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    addToCart(product, product.sizes?.[0]?.size || 'M');
+    toast.success('Added to cart!');
   };
 
   const discount = product.discount || (product.originalPrice ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) : 0);
@@ -22,12 +33,19 @@ const ProductCard = ({ product }) => {
     <Link to={`/product/${product._id}`} className="product-card animate-fadeIn">
       <div className="product-img-wrap">
         <img
-          src={product.images?.[0] || 'https://via.placeholder.com/300x400?text=No+Image'}
+          src={getProductImage(product.images?.[0])}
           alt={product.name}
           loading="lazy"
         />
+
+        <div className="img-overlay">
+          <button className="quick-add-btn" onClick={handleQuickAdd}>
+            <FiPlus /> Quick Add
+          </button>
+        </div>
+
         {discount > 0 && (
-          <span className="discount-badge">-{discount}%</span>
+          <span className="discount-badge">-{discount}% OFF</span>
         )}
         {user && (
           <button
@@ -38,46 +56,27 @@ const ProductCard = ({ product }) => {
           </button>
         )}
         {product.totalStock <= 5 && product.totalStock > 0 && (
-          <span className="low-stock-badge">Only {product.totalStock} left!</span>
-        )}
-        {product.totalStock === 0 && (
-          <div className="out-of-stock-overlay">
-            <span>Out of Stock</span>
-          </div>
+          <span className="low-stock-badge">Only {product.totalStock} Left</span>
         )}
       </div>
 
       <div className="product-info">
-        <p className="product-brand">{product.brand}</p>
+        <div className="product-meta">
+          <span className="product-brand">{product.brand}</span>
+          {product.ratings?.count > 0 && (
+            <div className="product-rating">
+              {product.ratings.average} <FiStar className="star-icon" />
+            </div>
+          )}
+        </div>
         <h3 className="product-name">{product.name}</h3>
 
         <div className="product-pricing">
           <span className="current-price">₹{product.price?.toLocaleString()}</span>
           {product.originalPrice > product.price && (
-            <>
-              <span className="original-price">₹{product.originalPrice?.toLocaleString()}</span>
-              <span className="discount-text">{discount}% off</span>
-            </>
+            <span className="original-price">₹{product.originalPrice?.toLocaleString()}</span>
           )}
         </div>
-
-        {product.ratings?.count > 0 && (
-          <div className="product-rating">
-            <span className="rating-badge">
-              {product.ratings.average} <FiStar />
-            </span>
-            <span className="rating-count">({product.ratings.count})</span>
-          </div>
-        )}
-
-        {product.sizes?.length > 0 && (
-          <div className="product-sizes">
-            {product.sizes.slice(0, 4).map((s) => (
-              <span key={s.size} className="size-tag">{s.size}</span>
-            ))}
-            {product.sizes.length > 4 && <span className="size-tag">+{product.sizes.length - 4}</span>}
-          </div>
-        )}
       </div>
     </Link>
   );

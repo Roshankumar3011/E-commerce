@@ -44,20 +44,23 @@ const Navbar = () => {
       <div className="navbar-container">
         {/* Logo */}
         <Link to="/" className="navbar-logo">
-          <span className="logo-text">Flip</span>
-          <span className="logo-accent">Style</span>
-          <span className="logo-tagline">Explore <span>Plus</span></span>
+          <span className="logo-text">FLIP</span>
+          <span className="logo-accent">STYLE</span>
         </Link>
+
 
         {/* Search */}
         <form className="navbar-search" onSubmit={handleSearch}>
-          <FiSearch className="search-icon" />
-          <input
-            type="text"
-            placeholder="Search for products, brands and more"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+          <div className="search-input-wrapper">
+            <FiSearch className="search-icon" />
+            <input
+              type="text"
+              placeholder="Search for products, brands and more"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <button type="submit" className="search-btn">Search</button>
+          </div>
         </form>
 
         {/* Nav Categories */}

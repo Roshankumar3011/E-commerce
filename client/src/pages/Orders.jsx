@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FiPackage, FiChevronRight } from 'react-icons/fi';
 import API from '../utils/api';
+import { getProductImage } from '../utils/assets';
 import './Orders.css';
 
 const statusColors = {
@@ -59,7 +60,8 @@ const Orders = () => {
                 <div className="order-items-preview">
                   {order.items?.slice(0, 3).map((item, i) => (
                     <div key={i} className="order-item-mini">
-                      <img src={item.image || item.product?.images?.[0] || 'https://via.placeholder.com/50'} alt="" />
+                      <img src={getProductImage(item.image || item.product?.images?.[0], 'https://via.placeholder.com/50')} alt="" />
+
                       <div>
                         <p>{item.name || item.product?.name}</p>
                         <span>Size: {item.size} · Qty: {item.quantity}</span>

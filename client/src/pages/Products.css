@@ -85,60 +85,89 @@
 }
 
 .filter-group h4 {
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
   color: var(--text-primary);
-  margin-bottom: 12px;
+  margin-bottom: 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  opacity: 0.8;
 }
 
 .filter-options {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  max-height: 200px;
+  gap: 10px;
+  max-height: 250px;
   overflow-y: auto;
+  padding-right: 4px;
 }
 
 .filter-option {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   cursor: pointer;
-  font-size: 13px;
+  padding: 6px 0;
+  transition: var(--transition);
+  position: relative;
+}
+
+.filter-option:hover span {
+  color: var(--primary);
+  transform: translateX(4px);
+}
+
+.filter-option span {
+  font-size: 14px;
   color: var(--text-secondary);
   transition: var(--transition);
 }
 
-.filter-option:hover {
-  color: var(--text-primary);
+/* Subcategory Indentation & Lines */
+.filter-option.is-child {
+  margin-left: 8px;
+  border-left: 2px solid rgba(0,0,0,0.05);
+  padding-left: 12px;
+}
+
+.filter-option.is-child:hover {
+  border-left-color: var(--primary);
 }
 
 .filter-option input[type="radio"] {
   accent-color: var(--primary);
+  width: 16px;
+  height: 16px;
 }
 
 .price-inputs {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
 
 .price-inputs input {
   width: 100%;
-  padding: 8px 12px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  font-size: 13px;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border-light);
+  border-radius: 8px;
+  font-size: 14px;
+  background: var(--bg-primary);
+  transition: var(--transition);
+}
+
+.price-inputs input:focus {
+  border-color: var(--primary);
+  background: white;
 }
 
 .price-inputs span {
   color: var(--text-muted);
-  font-size: 12px;
+  font-weight: 600;
 }
 
 .size-options {

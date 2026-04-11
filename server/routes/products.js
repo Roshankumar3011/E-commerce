@@ -80,6 +80,53 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Get categories list by gender
+router.get('/meta/categories', async (req, res) => {
+  try {
+    const { gender } = req.query;
+    const filter = { isActive: true };
+    if (gender) filter.gender = gender;
+    
+    // Find all products matching the filter (gender) and get their distinct category IDs
+    const categoryIds = await Product.distinct('category', filter);
+    
+    // Fetch the category objects for these IDs
+    const Category = require('../models/Category');
+    const categories = await Category.find({ _id: { $in: categoryIds }, isActive: true }).populate('parent', 'name slug');
+    
+    res.json({ success: true, categories });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Get brands list
+router.get('/meta/brands', async (req, res) => {
+  try {
+    const { gender } = req.query;
+    const filter = { isActive: true };
+    if (gender) filter.gender = gender;
+    
+    const brands = await Product.distinct('brand', filter);
+    res.json({ success: true, brands });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Get featured / top-rated products
+router.get('/featured/top', async (req, res) => {
+  try {
+    const products = await Product.find({ isActive: true })
+      .sort('-ratings.average')
+      .limit(8)
+      .populate('category', 'name slug');
+    res.json({ success: true, products });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 // Get single product
 router.get('/:id', async (req, res) => {
   try {
@@ -106,13 +153,17 @@ router.post('/', protect, admin, async (req, res) => {
 // Update product (admin)
 router.put('/:id', protect, admin, async (req, res) => {
   try {
-    const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
+    const product = await Product.findById(req.params.id);
     if (!product) {
       return res.status(404).json({ success: false, message: 'Product not found' });
     }
+
+    // Update fields
+    Object.assign(product, req.body);
+    
+    // Save document (triggers pre-save hooks)
+    await product.save();
+
     res.json({ success: true, product });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -127,29 +178,6 @@ router.delete('/:id', protect, admin, async (req, res) => {
       return res.status(404).json({ success: false, message: 'Product not found' });
     }
     res.json({ success: true, message: 'Product deleted' });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-});
-
-// Get featured / top-rated products
-router.get('/featured/top', async (req, res) => {
-  try {
-    const products = await Product.find({ isActive: true })
-      .sort('-ratings.average')
-      .limit(8)
-      .populate('category', 'name slug');
-    res.json({ success: true, products });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-});
-
-// Get brands list
-router.get('/meta/brands', async (req, res) => {
-  try {
-    const brands = await Product.distinct('brand', { isActive: true });
-    res.json({ success: true, brands });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

@@ -35,7 +35,6 @@ const Register = () => {
         <div className="auth-left">
           <h2>Create Account</h2>
           <p>Sign up to explore thousands of products and exclusive deals</p>
-          <div className="auth-illustration">✨</div>
         </div>
         <div className="auth-right">
           <form onSubmit={handleSubmit} className="auth-form">

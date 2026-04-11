@@ -4,7 +4,11 @@ import { FiArrowRight, FiTruck, FiRefreshCw, FiShield, FiCreditCard, FiChevronLe
 import API from '../utils/api';
 import ProductCard from '../components/ProductCard';
 import Loader from '../components/Loader';
-import summerHero from '../assets/hero-summer.png';
+// Banner images from Unsplash for perfection and quality
+/* Banner images curated for high-end fashion hero sections */
+const mensHero = 'https://images.unsplash.com/photo-1490578474895-699cd4e2cf59?q=80&w=2000&h=800&auto=format&fit=crop';
+const womensHero = 'https://images.unsplash.com/photo-1618244972963-dbee1a7edc95?q=80&w=2000&h=800&auto=format&fit=crop'; // Elegant & Modest
+const kidsHero = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTodsiX0Z-GL7SmSAiRANNBD1QA0XuqM77MKw&s&fit=crop'; // Modern & Playful
 import './Home.css';
 
 const Home = () => {
@@ -27,34 +31,34 @@ const Home = () => {
 
   const bannerSlides = [
     {
-      title: "LUXURY SUMMER 24",
-      subtitle: 'Exclusive AI-Designed Collection starting at ₹899',
-      cta: 'Explore Collection',
-      link: '/products',
-      emoji: '🌞',
-      image: summerHero,
-      gradient: 'linear-gradient(90deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 100%)',
-      icon: <FiSun />,
-    },
-    {
-      title: 'URBAN STREETWEAR',
-      subtitle: 'The best of global brands now in Yellow',
-      cta: 'Shop Men',
+      title: "MENSWEAR COLLECTIONS",
+      subtitle: "ELEVATE YOUR STYLE. DISCOVER TRENDS.",
+      description: "Shop New Arrivals in Men's Fashion.",
+      cta: "SHOP MEN'S",
       link: '/products/Men',
-      emoji: '👟',
-      image: 'https://images.unsplash.com/photo-1490578474895-699cd4e2cf59?w=1600',
-      gradient: 'linear-gradient(90deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 100%)',
-      icon: <FiUser />,
+      image: mensHero,
+      position: '20% center', // Subject on the left
+      btnClass: 'btn-men',
     },
     {
-      title: 'ELEGANCE REDEFINED',
-      subtitle: 'Exclusive discounts on luxury wear',
-      cta: 'Shop Women',
+      title: "WOMEN'S FASHION",
+      subtitle: "CHIC LOOKS. EFFORTLESS STYLE.",
+      description: "Explore Dresses, Tops, & More. Find Your Fit.",
+      cta: "SHOP WOMEN'S",
       link: '/products/Women',
-      emoji: '✨',
-      image: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1600',
-      gradient: 'linear-gradient(90deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.3) 100%)',
-      icon: <FiHeart />,
+      image: womensHero,
+      position: '25% center', // Subject on the left
+      btnClass: 'btn-women',
+    },
+    {
+      title: "KIDS' & BABY WEAR",
+      subtitle: "READY FOR FUN. COMFORT & JOY.",
+      description: "Durable, Trendy Outfits for Active Kids.",
+      cta: "SHOP KIDS'",
+      link: '/products/Kids',
+      image: kidsHero,
+      position: '20% center', // Subject on the left
+      btnClass: 'btn-kids',
     },
   ];
 
@@ -96,25 +100,28 @@ const Home = () => {
           <div
             key={idx}
             className={`hero-slide ${idx === currentSlide ? 'active' : ''}`}
-            style={{ 
-              backgroundImage: `${slide.gradient}, url(${slide.image})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center'
-            }}
           >
+            <div
+              className="hero-image"
+              style={{
+                backgroundImage: `url(${slide.image})`,
+                backgroundPosition: slide.position || 'center'
+              }}
+            />
+            <div className="hero-overlay" />
             <div className="container">
               <div className="hero-content">
-                <div className="hero-icon stagger-in stagger-delay-1">{slide.icon}</div>
-                <h1 className="stagger-in stagger-delay-2">{slide.title}</h1>
-                <p className="stagger-in stagger-delay-3">{slide.subtitle}</p>
-                <Link to={slide.link} className="btn btn-lg hero-cta stagger-in stagger-delay-4">
+                <h1 className="stagger-in stagger-delay-1">{slide.title}</h1>
+                <div className="hero-subtitle stagger-in stagger-delay-2">{slide.subtitle}</div>
+                <div className="hero-description stagger-in stagger-delay-3">{slide.description}</div>
+                <Link to={slide.link} className={`hero-cta ${slide.btnClass} stagger-in stagger-delay-4`}>
                   {slide.cta} <FiArrowRight />
                 </Link>
               </div>
             </div>
           </div>
         ))}
-        
+
         {/* Banner Navigation Arrows */}
         <button className="banner-nav prev" onClick={prevSlide}>
           <FiChevronLeft />
@@ -177,7 +184,7 @@ const Home = () => {
       <section className="promo-section">
         <div className="container">
           <div className="promo-grid">
-            <div className="promo-card promo-men" style={{ 
+            <div className="promo-card promo-men" style={{
               backgroundImage: 'linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.8)), url(https://images.unsplash.com/photo-1490578474895-699cd4e2cf59?w=800)',
               backgroundSize: 'cover',
               backgroundPosition: 'center'
@@ -190,7 +197,7 @@ const Home = () => {
                 </Link>
               </div>
             </div>
-            <div className="promo-card promo-women" style={{ 
+            <div className="promo-card promo-women" style={{
               backgroundImage: 'linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.8)), url(https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800)',
               backgroundSize: 'cover',
               backgroundPosition: 'center'
@@ -203,7 +210,7 @@ const Home = () => {
                 </Link>
               </div>
             </div>
-            <div className="promo-card promo-kids" style={{ 
+            <div className="promo-card promo-kids" style={{
               backgroundImage: 'linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.8)), url(https://images.unsplash.com/photo-1519238263530-99bdd11df2ea?w=800)',
               backgroundSize: 'cover',
               backgroundPosition: 'center'

@@ -40,8 +40,8 @@
 .filter-count {
   background: var(--primary);
   color: white;
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -258,6 +258,7 @@
   background: var(--primary);
   border-color: var(--primary);
   color: white;
+  box-shadow: 0 4px 10px rgba(59, 130, 246, 0.2);
 }
 
 @media (max-width: 768px) {

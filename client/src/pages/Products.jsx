@@ -1,88 +1,137 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
-import { FiFilter, FiX, FiChevronDown } from 'react-icons/fi';
+import { FiFilter, FiX } from 'react-icons/fi';
 import API from '../utils/api';
 import ProductCard from '../components/ProductCard';
 import Loader from '../components/Loader';
 import './Products.css';
 
 const Products = () => {
-  const { gender } = useParams();
+  const { gender } = useParams();   // e.g. "Men" | "Women" | "Kids" | undefined
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({ page: 1, pages: 1, total: 0 });
   const [showFilters, setShowFilters] = useState(false);
-  const [categories, setCategories] = useState([]);
+
+  // Full category tree (all categories from DB)
+  const [allCategories, setAllCategories] = useState([]);
+  // Only the categories that have at least one product for the current gender
+  const [scopedCategories, setScopedCategories] = useState([]);
   const [brands, setBrands] = useState([]);
 
   const [filters, setFilters] = useState({
-    category: searchParams.get('category') || '',
-    brand: searchParams.get('brand') || '',
-    minPrice: searchParams.get('minPrice') || '',
-    maxPrice: searchParams.get('maxPrice') || '',
-    size: searchParams.get('size') || '',
-    rating: searchParams.get('rating') || '',
-    sort: searchParams.get('sort') || '-createdAt',
+    category: '',
+    brand: '',
+    minPrice: '',
+    maxPrice: '',
+    size: '',
+    rating: '',
+    sort: '-createdAt',
     search: searchParams.get('search') || '',
   });
 
+  // ── Sync search param changes (from navbar search) ────────────
+  useEffect(() => {
+    setFilters(prev => ({ ...prev, search: searchParams.get('search') || '' }));
+  }, [searchParams]);
+
+  // ── Reset category & brand filters when gender route changes ──
+  useEffect(() => {
+    setFilters(prev => ({ ...prev, category: '', brand: '' }));
+  }, [gender]);
+
+  // ── Fetch metadata (categories + brands) scoped to gender ─────
   useEffect(() => {
     const fetchMeta = async () => {
       try {
-        const [catRes, brandRes] = await Promise.all([
-          API.get('/categories'),
-          API.get('/products/meta/brands'),
+        const q = gender ? `?gender=${gender}` : '';
+        const [allCatRes, scopedRes, brandRes] = await Promise.all([
+          API.get('/categories'),                           // full tree for hierarchy lookup
+          API.get(`/products/meta/categories${q}`),        // only cats with products in this gender
+          API.get(`/products/meta/brands${q}`),
         ]);
-        setCategories(catRes.data.categories);
-        setBrands(brandRes.data.brands);
+        setAllCategories(allCatRes.data.categories || []);
+        setScopedCategories(scopedRes.data.categories || []);
+        setBrands(brandRes.data.brands || []);
       } catch (err) {
-        console.error(err);
+        console.error('Meta fetch error:', err);
       }
     };
     fetchMeta();
-  }, []);
+  }, [gender]);
 
-  useEffect(() => {
-    setFilters((prev) => ({ ...prev, search: searchParams.get('search') || '' }));
-  }, [searchParams]);
+  // ── Build the visible category list for the sidebar ───────────
+  /**
+   * A category is shown when:
+   *  - No gender route   → all categories EXCEPT root gender nodes
+   *  - Gender route set  →
+   *      a) it is a direct child of the current gender root (hierarchy)
+   *      b) OR it has at least one product for this gender (product-driven)
+   *
+   * We use .toString() for ObjectId comparison (MongoDB IDs are objects, not strings).
+   */
+  const visibleCategories = allCategories.filter(cat => {
+    if (!gender) {
+      // All-products page: hide root gender categories themselves
+      return !['Men', 'Women', 'Kids'].includes(cat.name);
+    }
 
-  useEffect(() => {
-    fetchProducts();
-  }, [gender, filters, searchParams]);
+    // Find the root category matching the current gender (no parent = root)
+    const genderRoot = allCategories.find(
+      c => c.name === gender && !c.parent
+    );
 
-  const fetchProducts = async (page = 1) => {
+    // Hierarchy check: cat.parent (populated object or bare ID) matches the gender root
+    const parentId =
+      cat.parent?._id?.toString() ||   // populated parent object
+      cat.parent?.toString();           // bare ObjectId
+    const isHierarchyChild =
+      genderRoot && parentId && parentId === genderRoot._id.toString();
+
+    // Product-driven check: this cat exists in the scoped (gender-filtered) list
+    const hasProducts = scopedCategories.some(
+      sc => sc._id.toString() === cat._id.toString()
+    );
+
+    return isHierarchyChild || hasProducts;
+  });
+
+  // ── Fetch products ────────────────────────────────────────────
+  const fetchProducts = useCallback(async (page = 1) => {
     try {
       setLoading(true);
       const params = new URLSearchParams();
       params.set('page', page);
       params.set('limit', '12');
-      if (gender) params.set('gender', gender);
+      if (gender)          params.set('gender', gender);
       if (filters.category) params.set('category', filters.category);
-      if (filters.brand) params.set('brand', filters.brand);
+      if (filters.brand)    params.set('brand', filters.brand);
       if (filters.minPrice) params.set('minPrice', filters.minPrice);
       if (filters.maxPrice) params.set('maxPrice', filters.maxPrice);
-      if (filters.size) params.set('size', filters.size);
-      if (filters.rating) params.set('rating', filters.rating);
-      if (filters.sort) params.set('sort', filters.sort);
-      if (filters.search) params.set('search', filters.search);
+      if (filters.size)     params.set('size', filters.size);
+      if (filters.rating)   params.set('rating', filters.rating);
+      if (filters.sort)     params.set('sort', filters.sort);
+      if (filters.search)   params.set('search', filters.search);
 
       const res = await API.get(`/products?${params}`);
-      // Filter out products with no images (Safety Check)
-      const validProducts = (res.data.products || []).filter(p => p.images && p.images.length > 0);
-      setProducts(validProducts);
+      // Safety: drop products with no images
+      const valid = (res.data.products || []).filter(p => p.images?.length > 0);
+      setProducts(valid);
       setPagination(res.data.pagination);
     } catch (err) {
-      console.error(err);
+      console.error('Products fetch error:', err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [gender, filters]);
 
-  const handleFilterChange = (key, value) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
-  };
+  useEffect(() => { fetchProducts(); }, [fetchProducts]);
+
+  const handleFilterChange = (key, value) =>
+    setFilters(prev => ({ ...prev, [key]: value }));
 
   const clearFilters = () => {
     setFilters({
@@ -94,88 +143,121 @@ const Products = () => {
 
   const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
   const sortOptions = [
-    { value: '-createdAt', label: 'Newest First' },
-    { value: 'price', label: 'Price: Low to High' },
-    { value: '-price', label: 'Price: High to Low' },
-    { value: '-ratings.average', label: 'Top Rated' },
-    { value: '-discount', label: 'Best Discount' },
+    { value: '-createdAt',        label: 'Newest First' },
+    { value: 'price',             label: 'Price: Low to High' },
+    { value: '-price',            label: 'Price: High to Low' },
+    { value: '-ratings.average',  label: 'Top Rated' },
+    { value: '-discount',         label: 'Best Discount' },
   ];
 
-  const activeFiltersCount = Object.values(filters).filter((v) => v && v !== '-createdAt').length;
+  const activeFiltersCount = Object.values(filters).filter(
+    v => v && v !== '-createdAt'
+  ).length;
 
   return (
     <div className="products-page">
       {/* Page Header */}
       <div className="page-header">
         <div className="container">
-          <h1>{gender ? `${gender}'s Fashion` : filters.search ? `Results for "${filters.search}"` : 'All Products'}</h1>
-          <p className="breadcrumb">Home / {gender || 'Products'} — {pagination.total} items found</p>
+          <h1>
+            {gender
+              ? `${gender}'s Fashion`
+              : filters.search
+              ? `Results for "${filters.search}"`
+              : 'All Products'}
+          </h1>
+          <p className="breadcrumb">
+            Home / {gender || 'Products'} — {pagination.total} items found
+          </p>
         </div>
       </div>
 
       <div className="container">
         <div className="products-layout">
-          {/* Sidebar Filters */}
+
+          {/* ── SIDEBAR FILTERS ─────────────────────────── */}
           <aside className={`filters-sidebar ${showFilters ? 'show' : ''}`}>
             <div className="filters-header">
-              <h3>Filters {activeFiltersCount > 0 && <span className="filter-count">{activeFiltersCount}</span>}</h3>
+              <h3>
+                Filters{' '}
+                {activeFiltersCount > 0 && (
+                  <span className="filter-count">{activeFiltersCount}</span>
+                )}
+              </h3>
               <div className="filters-actions">
                 {activeFiltersCount > 0 && (
-                  <button className="clear-btn" onClick={clearFilters}>Clear All</button>
+                  <button className="clear-btn" onClick={clearFilters}>
+                    Clear All
+                  </button>
                 )}
-                <button className="close-filters" onClick={() => setShowFilters(false)}><FiX /></button>
+                <button
+                  className="close-filters"
+                  onClick={() => setShowFilters(false)}
+                >
+                  <FiX />
+                </button>
               </div>
             </div>
 
-            {/* Gender */}
-            <div className="filter-group">
-              <h4>Gender</h4>
-              <div className="filter-options">
-                {['Men', 'Women', 'Kids'].map((g) => (
-                  <label key={g} className="filter-option">
-                    <input
-                      type="radio"
-                      name="gender_select"
-                      checked={gender === g}
-                      onChange={() => navigate(`/products/${g}${filters.category ? `?category=${filters.category}` : ''}`)}
-                    />
-                    <span>{g}</span>
-                  </label>
-                ))}
-                <label className="filter-option">
+            {/* Gender switcher — only on the All Products page */}
+            {!gender && (
+              <div className="filter-group">
+                <h4>Gender</h4>
+                <div className="filter-options">
+                  {['Men', 'Women', 'Kids'].map(g => (
+                    <label key={g} className="filter-option">
+                      <input
+                        type="radio"
+                        name="gender_select"
+                        checked={false}
+                        onChange={() => navigate(`/products/${g}`)}
+                      />
+                      <span>{g}</span>
+                    </label>
+                  ))}
+                  <label className="filter-option">
                     <input
                       type="radio"
                       name="gender_select"
                       checked={!gender}
-                      onChange={() => navigate(`/products`)}
+                      onChange={() => navigate('/products')}
+                      readOnly
                     />
                     <span>All</span>
                   </label>
+                </div>
               </div>
-            </div>
+            )}
 
-            {/* Category */}
+            {/* ── DYNAMIC CATEGORY LIST ─────────────────── */}
             <div className="filter-group">
               <h4>Category</h4>
               <div className="filter-options">
-                {categories
-                  .filter(cat => !['Men', 'Women', 'Kids'].includes(cat.name)) // Hide roots that match Genders
-                  .map((cat) => (
-                  <label 
-                    key={cat._id} 
-                    className={`filter-option ${cat.parent ? 'is-child' : ''}`}
-                  >
-                    <input
-                      type="radio"
-                      name="category"
-                      checked={filters.category === cat._id}
-                      onChange={() => handleFilterChange('category', filters.category === cat._id ? '' : cat._id)}
-                    />
-                    <span>
-                      {cat.name}
-                    </span>
-                  </label>
-                ))}
+                {visibleCategories.length === 0 ? (
+                  <p style={{ fontSize: '13px', color: 'var(--text-muted)', padding: '4px 0' }}>
+                    No categories available
+                  </p>
+                ) : (
+                  visibleCategories.map(cat => (
+                    <label
+                      key={cat._id}
+                      className={`filter-option ${cat.parent ? 'is-child' : ''}`}
+                    >
+                      <input
+                        type="radio"
+                        name="category"
+                        checked={filters.category === cat._id}
+                        onChange={() =>
+                          handleFilterChange(
+                            'category',
+                            filters.category === cat._id ? '' : cat._id
+                          )
+                        }
+                      />
+                      <span>{cat.name}</span>
+                    </label>
+                  ))
+                )}
               </div>
             </div>
 
@@ -183,13 +265,18 @@ const Products = () => {
             <div className="filter-group">
               <h4>Brand</h4>
               <div className="filter-options">
-                {brands.map((brand) => (
+                {brands.map(brand => (
                   <label key={brand} className="filter-option">
                     <input
                       type="radio"
                       name="brand"
                       checked={filters.brand === brand}
-                      onChange={() => handleFilterChange('brand', filters.brand === brand ? '' : brand)}
+                      onChange={() =>
+                        handleFilterChange(
+                          'brand',
+                          filters.brand === brand ? '' : brand
+                        )
+                      }
                     />
                     <span>{brand}</span>
                   </label>
@@ -197,13 +284,23 @@ const Products = () => {
               </div>
             </div>
 
-            {/* Price */}
+            {/* Price Range */}
             <div className="filter-group">
               <h4>Price Range</h4>
               <div className="price-inputs">
-                <input type="number" placeholder="Min" value={filters.minPrice} onChange={(e) => handleFilterChange('minPrice', e.target.value)} />
-                <span>-</span>
-                <input type="number" placeholder="Max" value={filters.maxPrice} onChange={(e) => handleFilterChange('maxPrice', e.target.value)} />
+                <input
+                  type="number"
+                  placeholder="Min"
+                  value={filters.minPrice}
+                  onChange={e => handleFilterChange('minPrice', e.target.value)}
+                />
+                <span>–</span>
+                <input
+                  type="number"
+                  placeholder="Max"
+                  value={filters.maxPrice}
+                  onChange={e => handleFilterChange('maxPrice', e.target.value)}
+                />
               </div>
             </div>
 
@@ -211,11 +308,13 @@ const Products = () => {
             <div className="filter-group">
               <h4>Size</h4>
               <div className="size-options">
-                {sizes.map((size) => (
+                {sizes.map(size => (
                   <button
                     key={size}
                     className={`size-filter-btn ${filters.size === size ? 'active' : ''}`}
-                    onClick={() => handleFilterChange('size', filters.size === size ? '' : size)}
+                    onClick={() =>
+                      handleFilterChange('size', filters.size === size ? '' : size)
+                    }
                   >
                     {size}
                   </button>
@@ -224,20 +323,26 @@ const Products = () => {
             </div>
           </aside>
 
-          {/* Products Grid */}
+          {/* ── PRODUCT GRID ─────────────────────────────── */}
           <div className="products-main">
             <div className="products-toolbar">
-              <button className="filter-toggle-btn" onClick={() => setShowFilters(true)}>
-                <FiFilter /> Filters {activeFiltersCount > 0 && `(${activeFiltersCount})`}
+              <button
+                className="filter-toggle-btn"
+                onClick={() => setShowFilters(true)}
+              >
+                <FiFilter /> Filters{' '}
+                {activeFiltersCount > 0 && `(${activeFiltersCount})`}
               </button>
 
               <select
                 value={filters.sort}
-                onChange={(e) => handleFilterChange('sort', e.target.value)}
+                onChange={e => handleFilterChange('sort', e.target.value)}
                 className="sort-select"
               >
-                {sortOptions.map((opt) => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                {sortOptions.map(opt => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
                 ))}
               </select>
             </div>
@@ -249,12 +354,14 @@ const Products = () => {
                 <div className="empty-icon">🔍</div>
                 <h3>No products found</h3>
                 <p>Try adjusting your filters or search query</p>
-                <button className="btn btn-primary" onClick={clearFilters}>Clear Filters</button>
+                <button className="btn btn-primary" onClick={clearFilters}>
+                  Clear Filters
+                </button>
               </div>
             ) : (
               <>
                 <div className="product-grid">
-                  {products.map((product) => (
+                  {products.map(product => (
                     <ProductCard key={product._id} product={product} />
                   ))}
                 </div>

@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { FiMail, FiLock, FiEye, FiEyeOff } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
-import loginHero from '../assets/login-hero.png';
 import './Auth.css';
 
 const Login = () => {
@@ -35,7 +34,10 @@ const Login = () => {
           <h2 className="stagger-in stagger-delay-1">Login</h2>
           <p className="stagger-in stagger-delay-2">Get access to your Orders, Wishlist and Recommendations</p>
           <div className="auth-illustration stagger-in stagger-delay-3">
-            <img src={loginHero} alt="Fashion Shopping" />
+            <img 
+              src="https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?q=80&w=2070&auto=format&fit=crop" 
+              alt="Fashion Retail Interior" 
+            />
           </div>
         </div>
         <div className="auth-right">

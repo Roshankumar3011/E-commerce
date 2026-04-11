@@ -1,45 +1,45 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
 
 :root {
-  /* Blinkit-inspired color palette */
-  --primary: #F8CB46;
-  --primary-dark: #EDBB2E;
-  --primary-light: #fff9e6;
-  --secondary: #000000;
-  --secondary-dark: #1a1a1a;
-  --accent: #F8CB46;
-  --success: #26a541;
-  --danger: #ff4444;
-  --warning: #F8CB46;
-  --info: #000000;
+  /* Modern Light Blue & White Palette */
+  --primary: #3B82F6;
+  --primary-dark: #1D4ED8;
+  --primary-light: #DBEAFE;
+  --secondary: #1E293B;
+  --secondary-dark: #0F172A;
+  --accent: #3B82F6;
+  --success: #10B981;
+  --danger: #EF4444;
+  --warning: #F59E0B;
+  --info: #3B82F6;
 
   /* Neutrals */
-  --bg-primary: #f8f8f8;
-  --bg-white: #ffffff;
-  --bg-dark: #000000;
-  --bg-card: #ffffff;
-  --bg-hover: #f1f1f1;
+  --bg-primary: #F8FAFC;
+  --bg-white: #FFFFFF;
+  --bg-dark: #0F172A;
+  --bg-card: #FFFFFF;
+  --bg-hover: #F1F5F9;
 
-  --text-primary: #000000;
-  --text-secondary: #4a4a4a;
-  --text-muted: #8c8c8c;
-  --text-light: #ffffff;
-  --text-link: #4185f4;
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #94A3B8;
+  --text-light: #FFFFFF;
+  --text-link: #3B82F6;
 
-  --border: #e0e0e0;
-  --border-light: #f0f0f0;
-  --shadow-sm: 0 1px 4px rgba(0,0,0,0.05);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
-  --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
-  --shadow-xl: 0 12px 48px rgba(0,0,0,0.15);
+  --border: #E2E8F0;
+  --border-light: #F1F5F9;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -2px rgba(0,0,0,0.025);
+  --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.05), 0 10px 10px -5px rgba(0,0,0,0.02);
 
-  --radius-sm: 6px;
-  --radius-md: 10px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
   --radius-lg: 16px;
   --radius-xl: 24px;
-  --radius-full: 999px;
+  --radius-full: 9999px;
 
-  --transition: all 0.35s cubic-bezier(0.65, 0, 0.35, 1);
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   --font: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
@@ -130,7 +130,7 @@ input, select, textarea {
 .btn-primary:hover {
   background: var(--primary-dark);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(248, 203, 70, 0.4);
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
 }
 
 
@@ -141,7 +141,7 @@ input, select, textarea {
 .btn-secondary:hover {
   background: var(--secondary-dark);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(251, 100, 27, 0.4);
+  box-shadow: 0 4px 12px rgba(30, 41, 59, 0.2);
 }
 
 .btn-outline {
@@ -215,7 +215,7 @@ input, select, textarea {
 .input-group select:focus,
 .input-group textarea:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(40, 116, 240, 0.1);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 /* =========== BADGE =========== */

@@ -4,11 +4,11 @@
   align-items: center;
   justify-content: center;
   padding: 40px 16px;
-  background-color: #050505;
+  background-color: #F8FAFC;
   background-image: 
-    radial-gradient(at 0% 0%, rgba(248, 203, 70, 0.1) 0, transparent 40%), 
-    radial-gradient(at 100% 0%, rgba(255, 255, 255, 0.03) 0, transparent 40%),
-    radial-gradient(at 50% 50%, rgba(248, 203, 70, 0.05) 0, transparent 60%);
+    radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.05) 0, transparent 40%), 
+    radial-gradient(at 100% 0%, rgba(219, 234, 254, 0.4) 0, transparent 40%),
+    radial-gradient(at 50% 50%, rgba(59, 130, 246, 0.02) 0, transparent 60%);
   background-size: 200% 200%;
   animation: meshGradient 15s ease infinite;
   position: relative;
@@ -38,10 +38,9 @@
   width: 100%;
   border-radius: 30px;
   overflow: hidden;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 40px 100px -20px rgba(59, 130, 246, 0.15);
+  background: white;
+  border: 1px solid var(--border);
   animation: authContainerEntry 1s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -51,8 +50,10 @@
 }
 
 .auth-left {
-  background: linear-gradient(135deg, var(--primary) 0%, #ffcc33 100%);
-  color: #000;
+  background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?q=80&w=2070&auto=format&fit=crop');
+  background-size: cover;
+  background-position: center;
+  color: white;
   padding: 60px 48px;
   display: flex;
   flex-direction: column;
@@ -76,19 +77,7 @@
 }
 
 .auth-illustration {
-  margin-top: 48px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.auth-illustration img {
-  width: 100%;
-  max-width: 380px;
-  height: auto;
-  border-radius: 20px;
-  filter: drop-shadow(0 20px 40px rgba(0,0,0,0.3));
-  animation: float 4s ease-in-out infinite;
+  display: none; /* Hide the floating img since we use it as section background */
 }
 
 @keyframes float {
@@ -136,7 +125,7 @@
 .auth-input-group input:focus {
   border-color: var(--primary);
   background: white;
-  box-shadow: 0 0 0 4px rgba(248, 203, 70, 0.15);
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
 }
 
 .pass-toggle {
@@ -203,9 +192,9 @@
 .demo-btn:hover {
   border-color: var(--primary);
   background: var(--primary-light);
-  color: #000;
+  color: var(--primary);
   transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(248, 203, 70, 0.4);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.2);
 }
 
 .auth-switch {
@@ -216,16 +205,17 @@
 }
 
 .auth-switch a {
-  color: #000;
-  font-weight: 800;
+  color: var(--primary);
+  font-weight: 700;
   text-decoration: none;
-  border-bottom: 2px solid var(--primary);
+  border-bottom: 2px solid var(--primary-light);
   padding-bottom: 2px;
   transition: var(--transition);
 }
 
 .auth-switch a:hover {
   color: var(--primary-dark);
+  border-bottom-color: var(--primary);
 }
 
 /* Stagger Entry Animations */

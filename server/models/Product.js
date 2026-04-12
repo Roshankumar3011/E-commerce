@@ -59,6 +59,19 @@ const productSchema = new mongoose.Schema({
     hexCode: String,
   }],
   material: String,
+  season: {
+    type: String,
+    enum: ['Summer', 'Winter', 'Monsoon', 'Spring', 'All Season'],
+    default: 'All Season',
+  },
+  isFeatured: {
+    type: Boolean,
+    default: false,
+  },
+  isPinnedTopDeals: {
+    type: Boolean,
+    default: false,
+  },
   ratings: {
     average: { type: Number, default: 0, min: 0, max: 5 },
     count: { type: Number, default: 0 },

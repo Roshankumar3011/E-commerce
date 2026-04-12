@@ -10,14 +10,30 @@ const Cart = () => {
 
   if (!cart.items || cart.items.length === 0) {
     return (
-      <div className="container">
-        <div className="empty-state" style={{ paddingTop: 80 }}>
-          <div className="empty-icon">🛒</div>
-          <h3>Your cart is empty</h3>
-          <p>Looks like you haven't added anything yet</p>
-          <Link to="/products" className="btn btn-primary btn-lg">
-            <FiShoppingBag /> Start Shopping
-          </Link>
+      <div className="empty-page-container">
+        <div className="empty-page-inner">
+          <div className="empty-page-illustration">
+            <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="100" cy="100" r="90" fill="#EFF6FF" />
+              <rect x="55" y="65" width="90" height="75" rx="8" fill="#BFDBFE" />
+              <rect x="65" y="55" width="70" height="10" rx="5" fill="#93C5FD" />
+              <circle cx="78" cy="152" r="10" fill="#3B82F6" />
+              <circle cx="122" cy="152" r="10" fill="#3B82F6" />
+              <rect x="72" y="80" width="56" height="8" rx="4" fill="white" opacity="0.8"/>
+              <rect x="72" y="96" width="40" height="8" rx="4" fill="white" opacity="0.6"/>
+              <circle cx="158" cy="52" r="14" fill="#FEF3C7" />
+              <text x="154" y="57" fontSize="14">✨</text>
+            </svg>
+          </div>
+          <h2 className="empty-page-title">Your cart is empty</h2>
+          <p className="empty-page-subtitle">Looks like you haven't added anything to your cart yet. Start exploring our collections!</p>
+          <div className="empty-page-actions">
+            <Link to="/products" className="empty-cta-primary">
+              <FiShoppingBag /> Start Shopping
+            </Link>
+            <Link to="/products/Men" className="empty-cta-secondary">Browse Men's</Link>
+            <Link to="/products/Women" className="empty-cta-secondary">Browse Women's</Link>
+          </div>
         </div>
       </div>
     );

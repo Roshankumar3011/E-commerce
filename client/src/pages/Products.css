@@ -2,39 +2,50 @@
   animation: fadeIn 0.4s ease-out;
 }
 
+.breadcrumb a {
+  color: var(--text-primary);
+  text-decoration: none;
+  font-weight: 600;
+  transition: var(--transition);
+}
+
+.breadcrumb a:hover {
+  color: var(--primary);
+  text-decoration: underline;
+}
 .products-layout {
   display: grid;
-  grid-template-columns: 260px 1fr;
-  gap: 24px;
-  padding: 24px 0;
+  grid-template-columns: 200px 1fr;
+  gap: 16px;
+  padding: 8px 0;
 }
 
 /* Sidebar */
 .filters-sidebar {
   background: white;
-  border-radius: 12px;
-  padding: 20px;
+  border-radius: 8px;
+  padding: 12px;
   height: fit-content;
   position: sticky;
-  top: 90px;
-  box-shadow: var(--shadow-sm);
+  top: 60px;
+  border: 1px solid var(--border-light);
 }
 
 .filters-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 20px;
-  padding-bottom: 12px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
   border-bottom: 1px solid var(--border-light);
 }
 
 .filters-header h3 {
-  font-size: 16px;
+  font-size: 13px;
   font-weight: 700;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .filter-count {
@@ -74,8 +85,8 @@
 }
 
 .filter-group {
-  margin-bottom: 20px;
-  padding-bottom: 16px;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
   border-bottom: 1px solid var(--border-light);
 }
 
@@ -85,23 +96,23 @@
 }
 
 .filter-group h4 {
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
   color: var(--text-primary);
-  margin-bottom: 16px;
+  margin-bottom: 10px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  opacity: 0.8;
+  opacity: 0.9;
 }
 
 .filter-options {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  max-height: 250px;
+  gap: 4px;
+  max-height: 200px;
   overflow-y: auto;
   padding-right: 4px;
 }
@@ -109,9 +120,9 @@
 .filter-option {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   cursor: pointer;
-  padding: 6px 0;
+  padding: 2px 0;
   transition: var(--transition);
   position: relative;
 }
@@ -122,7 +133,7 @@
 }
 
 .filter-option span {
-  font-size: 14px;
+  font-size: 12px;
   color: var(--text-secondary);
   transition: var(--transition);
 }
@@ -203,7 +214,11 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid var(--border-light);
 }
 
 .filter-toggle-btn {

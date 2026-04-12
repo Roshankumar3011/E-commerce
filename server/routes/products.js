@@ -18,7 +18,7 @@ const getChildCategoryIds = async (parentId) => {
   return childIds;
 };
 
-// Get all products with filtering, sorting, pagination
+// Get all products with filtering, sorting, pagination (Fuzzy Search Enabled)
 router.get('/', async (req, res) => {
   try {
     const {
@@ -34,6 +34,10 @@ router.get('/', async (req, res) => {
       size,
       color,
       rating,
+      tags,
+      season,
+      isFeatured,
+      isPinnedTopDeals,
     } = req.query;
 
     const query = { isActive: true };
@@ -49,25 +53,49 @@ router.get('/', async (req, res) => {
     if (size) query['sizes.size'] = { $in: size.split(',') };
     if (color) query['colors.name'] = { $in: color.split(',') };
     if (rating) query['ratings.average'] = { $gte: Number(rating) };
+    if (tags) query.tags = { $in: tags.split(',') };
+    if (season) query.season = { $in: season.split(',') };
+    if (isFeatured === 'true') query.isFeatured = true;
+    if (isPinnedTopDeals === 'true') query.isPinnedTopDeals = true;
     if (minPrice || maxPrice) {
       query.price = {};
       if (minPrice) query.price.$gte = Number(minPrice);
       if (maxPrice) query.price.$lte = Number(maxPrice);
     }
+
+    // Standard high-performance MongoDB query for non-search results
+    let products = await Product.find(query)
+      .populate('category', 'name slug')
+      .sort(sort);
+
+    let total = products.length;
+
+    // Apply Fuzzy Search if search query exists
     if (search) {
-      query.$text = { $search: search };
+      const Fuse = require('fuse.js');
+      const fuse = new Fuse(products, {
+        keys: [
+          { name: 'name', weight: 2 },
+          { name: 'brand', weight: 1.5 },
+          { name: 'tags', weight: 1 },
+          { name: 'description', weight: 0.5 }
+        ],
+        threshold: 0.4, // Typo tolerance
+        includeScore: true
+      });
+
+      const fuseResults = fuse.search(search);
+      products = fuseResults.map(r => r.item);
+      total = products.length;
     }
 
-    const total = await Product.countDocuments(query);
-    const products = await Product.find(query)
-      .populate('category', 'name slug')
-      .sort(sort)
-      .skip((Number(page) - 1) * Number(limit))
-      .limit(Number(limit));
+    // Manual Pagination (necessary for Fuse results)
+    const startIndex = (Number(page) - 1) * Number(limit);
+    const paginatedProducts = products.slice(startIndex, startIndex + Number(limit));
 
     res.json({
       success: true,
-      products,
+      products: paginatedProducts,
       pagination: {
         page: Number(page),
         limit: Number(limit),
@@ -75,6 +103,37 @@ router.get('/', async (req, res) => {
         pages: Math.ceil(total / Number(limit)),
       },
     });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// GET Search Suggestions (Fuzzy Autocomplete)
+router.get('/search/suggestions', async (req, res) => {
+  try {
+    const { q } = req.query;
+    if (!q) return res.json({ success: true, suggestions: [] });
+
+    const products = await Product.find({ isActive: true })
+      .select('name brand category tags')
+      .populate('category', 'name')
+      .limit(200); // Sample for speed
+
+    const Fuse = require('fuse.js');
+    const fuse = new Fuse(products, {
+      keys: ['name', 'brand', 'tags', 'category.name'],
+      threshold: 0.35,
+    });
+
+    const results = fuse.search(q).slice(0, 8);
+    const suggestions = results.map(r => ({
+      id: r.item._id,
+      text: r.item.name,
+      brand: r.item.brand,
+      category: r.item.category?.name
+    }));
+
+    res.json({ success: true, suggestions });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -95,6 +154,16 @@ router.get('/meta/categories', async (req, res) => {
     const categories = await Category.find({ _id: { $in: categoryIds }, isActive: true }).populate('parent', 'name slug');
     
     res.json({ success: true, categories });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Get unique seasons used by pinned products
+router.get('/meta/seasons', async (req, res) => {
+  try {
+    const seasons = await Product.distinct('season', { isActive: true, isPinnedTopDeals: true });
+    res.json({ success: true, seasons: seasons.filter(Boolean) });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

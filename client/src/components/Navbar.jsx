@@ -1,36 +1,104 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FiSearch, FiShoppingCart, FiHeart, FiUser, FiMenu, FiX, FiChevronDown, FiPackage, FiLogOut, FiSettings } from 'react-icons/fi';
+import { FiSearch, FiShoppingCart, FiHeart, FiUser, FiMenu, FiX, FiChevronDown, FiPackage, FiLogOut, FiSettings, FiClock, FiTrendingUp } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
+import API from '../utils/api';
 import './Navbar.css';
+
+const RECENT_KEY = 'flipstyle_recent_searches';
+const MAX_RECENT = 6;
+
+const getRecentSearches = () => {
+  try { return JSON.parse(localStorage.getItem(RECENT_KEY)) || []; }
+  catch { return []; }
+};
+
+const saveSearch = (query) => {
+  const prev = getRecentSearches().filter(q => q !== query);
+  localStorage.setItem(RECENT_KEY, JSON.stringify([query, ...prev].slice(0, MAX_RECENT)));
+};
+
+const removeRecentSearch = (query) => {
+  const updated = getRecentSearches().filter(q => q !== query);
+  localStorage.setItem(RECENT_KEY, JSON.stringify(updated));
+};
 
 const Navbar = () => {
   const { user, logout } = useAuth();
   const { cartCount } = useCart();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
+  const [suggestions, setSuggestions] = useState([]);
+  const [recentSearches, setRecentSearches] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [mobileMenu, setMobileMenu] = useState(false);
   const dropdownRef = useRef(null);
+  const searchRef = useRef(null);
+  const debounceRef = useRef(null);
 
   useEffect(() => {
     const handleClick = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setShowDropdown(false);
       }
+      if (searchRef.current && !searchRef.current.contains(e.target)) {
+        setShowSuggestions(false);
+      }
     };
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
+  const fetchSuggestions = async (q) => {
+    if (q.length < 2) { setSuggestions([]); return; }
+    setLoadingSuggestions(true);
+    try {
+      const { data } = await API.get(`/products/search/suggestions?q=${encodeURIComponent(q)}`);
+      setSuggestions(data.suggestions);
+    } catch (err) { console.error(err); }
+    finally { setLoadingSuggestions(false); }
+  };
+
+  const onSearchChange = (val) => {
+    setSearchQuery(val);
+    setShowSuggestions(true);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => fetchSuggestions(val), 300);
+  };
+
+  const onFocus = () => {
+    setRecentSearches(getRecentSearches());
+    setShowSuggestions(true);
+  };
+
+  const handleSearch = (e, q = searchQuery) => {
+    if (e) e.preventDefault();
+    const trimmed = q.trim();
+    if (trimmed) {
+      saveSearch(trimmed);
+      navigate(`/products?search=${encodeURIComponent(trimmed)}`);
       setSearchQuery('');
+      setSuggestions([]);
+      setShowSuggestions(false);
       setMobileMenu(false);
     }
+  };
+
+  const selectSuggestion = (text) => {
+    saveSearch(text);
+    navigate(`/products?search=${encodeURIComponent(text)}`);
+    setSearchQuery('');
+    setSuggestions([]);
+    setShowSuggestions(false);
+  };
+
+  const handleRemoveRecent = (e, q) => {
+    e.stopPropagation();
+    removeRecentSearch(q);
+    setRecentSearches(getRecentSearches());
   };
 
   const handleLogout = () => {
@@ -38,6 +106,9 @@ const Navbar = () => {
     setShowDropdown(false);
     navigate('/');
   };
+
+  const showRecentPanel = showSuggestions && searchQuery.length === 0 && recentSearches.length > 0;
+  const showSuggestPanel = showSuggestions && suggestions.length > 0 && searchQuery.length > 0;
 
   return (
     <nav className="navbar">
@@ -50,19 +121,63 @@ const Navbar = () => {
 
 
         {/* Search */}
-        <form className="navbar-search" onSubmit={handleSearch}>
-          <div className="search-input-wrapper">
-            <FiSearch className="search-icon" />
-            <input
-              type="text"
-              placeholder="Search for products, brands and more"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            <button type="submit" className="search-btn">Search</button>
-          </div>
-        </form>
+        <div className="navbar-search" ref={searchRef}>
+          <form onSubmit={handleSearch}>
+            <div className="search-input-wrapper">
+              <FiSearch className="search-icon" />
+              <input
+                type="text"
+                placeholder="Search for products, brands and more"
+                value={searchQuery}
+                onChange={(e) => onSearchChange(e.target.value)}
+                onFocus={onFocus}
+                autoComplete="off"
+              />
+              <button type="submit" className="search-btn">Search</button>
+            </div>
+          </form>
 
+          {/* Recent Searches Panel */}
+          {showRecentPanel && (
+            <div className="search-suggestions animate-fadeIn">
+              <div className="suggest-section-header">
+                <FiClock size={12} /> Recent Searches
+              </div>
+              {recentSearches.map((q) => (
+                <div key={q} className="suggestion-item" onClick={() => selectSuggestion(q)}>
+                  <FiClock className="suggest-icon" />
+                  <div className="suggest-content">
+                    <span className="suggest-text">{q}</span>
+                  </div>
+                  <button className="suggest-remove" onClick={(e) => handleRemoveRecent(e, q)}>
+                    <FiX size={12} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Live Suggestions Panel */}
+          {showSuggestPanel && (
+            <div className="search-suggestions animate-fadeIn">
+              <div className="suggest-section-header">
+                <FiTrendingUp size={12} /> Suggestions
+              </div>
+              {suggestions.map((s) => (
+                <div key={s.id} className="suggestion-item" onClick={() => selectSuggestion(s.text)}>
+                  <FiSearch className="suggest-icon" />
+                  <div className="suggest-content">
+                    <span className="suggest-text">{s.text}</span>
+                    <div className="suggest-meta">
+                      {s.brand && <span className="suggest-brand">{s.brand}</span>}
+                      {s.category && <span className="suggest-cat">in {s.category}</span>}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
         {/* Nav Categories */}
         <div className={`navbar-categories ${mobileMenu ? 'show' : ''}`}>
           <Link to="/products/Men" className="nav-cat" onClick={() => setMobileMenu(false)}>Men</Link>

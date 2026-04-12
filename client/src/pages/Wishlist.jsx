@@ -21,11 +21,27 @@ const Wishlist = () => {
       </div>
       <div className="container">
         {products.length === 0 ? (
-          <div className="empty-state">
-            <div className="empty-icon">❤️</div>
-            <h3>Your wishlist is empty</h3>
-            <p>Save items you love to your wishlist</p>
-            <Link to="/products" className="btn btn-primary">Explore Products</Link>
+          <div className="empty-page-container" style={{ paddingTop: 40 }}>
+            <div className="empty-page-inner">
+              <div className="empty-page-illustration">
+                <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="100" cy="100" r="90" fill="#FFF1F2" />
+                  <path d="M100 140 C65 115 45 95 45 78 C45 62 57 50 72 50 C83 50 93 57 100 67 C107 57 117 50 128 50 C143 50 155 62 155 78 C155 95 135 115 100 140Z" fill="#FCA5A5" />
+                  <path d="M100 135 C68 112 50 93 50 78 C50 65 60 55 72 55 C82 55 91 61 100 70 C109 61 118 55 128 55 C140 55 150 65 150 78 C150 93 132 112 100 135Z" fill="#F87171" />
+                  <circle cx="155" cy="55" r="14" fill="#FEF3C7" />
+                  <text x="150" y="60" fontSize="14">💫</text>
+                </svg>
+              </div>
+              <h2 className="empty-page-title">Your wishlist is empty</h2>
+              <p className="empty-page-subtitle">Save the items you love here! Browse our collections and tap the heart icon to add products to your wishlist.</p>
+              <div className="empty-page-actions">
+                <Link to="/products" className="empty-cta-primary">
+                  <FiTrash2 style={{ display: 'none' }} /> Explore Products
+                </Link>
+                <Link to="/products/Women" className="empty-cta-secondary">Women's</Link>
+                <Link to="/products/Men" className="empty-cta-secondary">Men's</Link>
+              </div>
+            </div>
           </div>
         ) : (
           <div className="wishlist-grid" style={{ padding: '24px 0' }}>

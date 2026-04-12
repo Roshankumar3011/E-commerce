@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
+import { useParams, useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { FiFilter, FiX } from 'react-icons/fi';
 import API from '../utils/api';
 import ProductCard from '../components/ProductCard';
@@ -160,14 +160,33 @@ const Products = () => {
       <div className="page-header">
         <div className="container">
           <h1>
-            {gender
-              ? `${gender}'s Fashion`
+            {filters.category
+              ? allCategories.find(c => c._id === filters.category)?.name || 'Products'
+              : gender
+              ? `${gender === 'Kids' ? "Kids'" : `${gender}'s`} Fashion`
               : filters.search
               ? `Results for "${filters.search}"`
               : 'All Products'}
           </h1>
           <p className="breadcrumb">
-            Home / {gender || 'Products'} — {pagination.total} items found
+            <Link to="/">Home</Link> /{' '}
+            {gender ? (
+              <>
+                <Link to="/products">Products</Link> /{' '}
+                <Link to={`/products/${gender}`}>{gender}</Link>
+              </>
+            ) : (
+              <Link to="/products">Products</Link>
+            )}
+            {filters.category && (
+              <>
+                {' / '}
+                <span className="active-crumb">
+                  {allCategories.find(c => c._id === filters.category)?.name || ''}
+                </span>
+              </>
+            )}
+            <span style={{ opacity: 0.7, marginLeft: '6px' }}>— {pagination.total} items found</span>
           </p>
         </div>
       </div>
@@ -350,13 +369,28 @@ const Products = () => {
             {loading ? (
               <Loader />
             ) : products.length === 0 ? (
-              <div className="empty-state">
-                <div className="empty-icon">🔍</div>
-                <h3>No products found</h3>
-                <p>Try adjusting your filters or search query</p>
-                <button className="btn btn-primary" onClick={clearFilters}>
-                  Clear Filters
-                </button>
+              <div className="empty-page-container">
+                <div className="empty-page-inner">
+                  <div className="empty-page-illustration">
+                    <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="100" cy="100" r="90" fill="#F0FDF4" />
+                      <circle cx="92" cy="90" r="38" stroke="#86EFAC" strokeWidth="8" fill="white"/>
+                      <line x1="120" y1="118" x2="148" y2="148" stroke="#86EFAC" strokeWidth="8" strokeLinecap="round"/>
+                      <circle cx="92" cy="90" r="26" fill="#DCFCE7"/>
+                      <line x1="82" y1="90" x2="102" y2="90" stroke="#4ADE80" strokeWidth="4" strokeLinecap="round"/>
+                      <line x1="92" y1="80" x2="92" y2="100" stroke="#4ADE80" strokeWidth="4" strokeLinecap="round"/>
+                      <circle cx="155" cy="50" r="14" fill="#FEF9C3"/>
+                      <text x="150" y="55" fontSize="14">🔍</text>
+                    </svg>
+                  </div>
+                  <h2 className="empty-page-title">No products found</h2>
+                  <p className="empty-page-subtitle">We couldn't find any products matching your search or filters. Try a different query or explore our popular categories.</p>
+                  <div className="empty-page-actions">
+                    <button className="empty-cta-primary" onClick={clearFilters}>Clear All Filters</button>
+                    <button className="empty-cta-secondary" onClick={() => navigate('/products/Men')}>Men's</button>
+                    <button className="empty-cta-secondary" onClick={() => navigate('/products/Women')}>Women's</button>
+                  </div>
+                </div>
               </div>
             ) : (
               <>

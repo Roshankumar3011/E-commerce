@@ -1,245 +1,256 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { FiArrowRight, FiTruck, FiRefreshCw, FiShield, FiCreditCard, FiChevronLeft, FiChevronRight, FiSun, FiUser, FiHeart } from 'react-icons/fi';
+import { FiArrowRight, FiUser, FiHeart, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import API from '../utils/api';
 import ProductCard from '../components/ProductCard';
 import Loader from '../components/Loader';
-// Banner images from Unsplash for perfection and quality
-/* Banner images curated for high-end fashion hero sections */
-const mensHero = 'https://images.unsplash.com/photo-1490578474895-699cd4e2cf59?q=80&w=2000&h=800&auto=format&fit=crop';
-const womensHero = 'https://images.unsplash.com/photo-1618244972963-dbee1a7edc95?q=80&w=2000&h=800&auto=format&fit=crop'; // Elegant & Modest
-const kidsHero = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTodsiX0Z-GL7SmSAiRANNBD1QA0XuqM77MKw&s&fit=crop'; // Modern & Playful
 import './Home.css';
 
+// Local Sub-component with Vertical Sidebar Filters (Reference Based)
+const ProductSection = ({ title, viewAllLink, collections, selectedTag, onTagChange, products, loading, scrollRef, onScroll }) => (
+  <section className="section">
+    <div className="container">
+      <div className="section-header">
+        <h2 className="section-title">{title}</h2>
+        <Link to={viewAllLink} className="view-all">
+          View All <FiArrowRight />
+        </Link>
+      </div>
+
+      <div className="section-body">
+        <aside className="section-sidebar">
+          <div className="sidebar-header">
+            <span className="sidebar-title">Filters</span>
+            {selectedTag && <span className="sidebar-badge">1</span>}
+          </div>
+          
+          <div className="sidebar-group">
+            <label className="group-label">CATEGORY</label>
+            <div className="filter-list-vertical">
+              {collections.map((col) => (
+                <button
+                  key={col.name}
+                  className={`filter-item-v ${selectedTag === col.value ? 'active' : ''}`}
+                  onClick={() => onTagChange(col.value)}
+                >
+                  <span className="radio-circle"></span>
+                  <span className="filter-name">{col.name}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </aside>
+
+        <div className="section-content" style={{ opacity: loading ? 0.4 : 1, pointerEvents: loading ? 'none' : 'auto', transition: 'all 0.3s ease' }}>
+          <div className="scroll-row-container">
+            <button className="scroll-nav-btn prev" onClick={() => onScroll('left')} aria-label="Previous">
+              <FiChevronLeft />
+            </button>
+            <div className="scroll-row" ref={scrollRef}>
+              {products.length > 0 ? (
+                products.map((product) => (
+                  <ProductCard key={product._id} product={product} />
+                ))
+              ) : (
+                <div className="no-products">No products found.</div>
+              )}
+            </div>
+            <button className="scroll-nav-btn next" onClick={() => onScroll('right')} aria-label="Next">
+              <FiChevronRight />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+);
+
 const Home = () => {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // Top Deals State
+  const [deals, setDeals] = useState([]);
+  const [dealsLoading, setDealsLoading] = useState(true);
+  const [selectedDealsTag, setSelectedDealsTag] = useState('');
+  const dealsScrollRef = useRef(null);
+
+  // Men's Collection State
+  const [menProducts, setMenProducts] = useState([]);
+  const [menLoading, setMenLoading] = useState(true);
+  const [selectedMenTag, setSelectedMenTag] = useState('');
+  const menScrollRef = useRef(null);
+
+  // Women's Collection State
+  const [womenProducts, setWomenProducts] = useState([]);
+  const [womenLoading, setWomenLoading] = useState(true);
+  const [selectedWomenTag, setSelectedWomenTag] = useState('');
+  const womenScrollRef = useRef(null);
+
+  // Kids' Collection State
+  const [kidsProducts, setKidsProducts] = useState([]);
+  const [kidsLoading, setKidsLoading] = useState(true);
+  const [selectedKidsTag, setSelectedKidsTag] = useState('');
+  const kidsScrollRef = useRef(null);
+
+  const [dealCollections, setDealCollections] = useState([{ name: 'All', value: '' }]);
+  const [menCollections, setMenCollections] = useState([{ name: 'All', value: '' }]);
+  const [womenCollections, setWomenCollections] = useState([{ name: 'All', value: '' }]);
+  const [kidsCollections, setKidsCollections] = useState([{ name: 'All', value: '' }]);
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const res = await API.get('/products?limit=12&sort=-ratings.average');
-        setProducts(res.data.products);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProducts();
+    API.get('/products/meta/seasons').then(res => {
+      // Filter out "All Season" from the backend response as requested
+      const activeSeasons = res.data.seasons.filter(s => s !== 'All Season');
+      setDealCollections([{ name: 'All', value: '' }, ...activeSeasons.map(s => ({ name: s, value: s }))]);
+    });
+    API.get('/products/meta/categories?gender=Men').then(res => {
+      setMenCollections([{ name: 'All', value: '' }, ...res.data.categories.map(c => ({ name: c.name, value: c._id }))]);
+    });
+    API.get('/products/meta/categories?gender=Women').then(res => {
+      setWomenCollections([{ name: 'All', value: '' }, ...res.data.categories.map(c => ({ name: c.name, value: c._id }))]);
+    });
+    API.get('/products/meta/categories?gender=Kids').then(res => {
+      setKidsCollections([{ name: 'All', value: '' }, ...res.data.categories.map(c => ({ name: c.name, value: c._id }))]);
+    });
   }, []);
 
-  const bannerSlides = [
-    {
-      title: "MENSWEAR COLLECTIONS",
-      subtitle: "ELEVATE YOUR STYLE. DISCOVER TRENDS.",
-      description: "Shop New Arrivals in Men's Fashion.",
-      cta: "SHOP MEN'S",
-      link: '/products/Men',
-      image: mensHero,
-      position: '20% center', // Subject on the left
-      btnClass: 'btn-men',
-    },
-    {
-      title: "WOMEN'S FASHION",
-      subtitle: "CHIC LOOKS. EFFORTLESS STYLE.",
-      description: "Explore Dresses, Tops, & More. Find Your Fit.",
-      cta: "SHOP WOMEN'S",
-      link: '/products/Women',
-      image: womensHero,
-      position: '25% center', // Subject on the left
-      btnClass: 'btn-women',
-    },
-    {
-      title: "KIDS' & BABY WEAR",
-      subtitle: "READY FOR FUN. COMFORT & JOY.",
-      description: "Durable, Trendy Outfits for Active Kids.",
-      cta: "SHOP KIDS'",
-      link: '/products/Kids',
-      image: kidsHero,
-      position: '20% center', // Subject on the left
-      btnClass: 'btn-kids',
-    },
+  const scroll = (ref, direction) => {
+    if (ref.current) {
+      const scrollAmount = 600;
+      ref.current.scrollBy({ left: direction === 'left' ? -scrollAmount : scrollAmount, behavior: 'smooth' });
+    }
+  };
+
+  // Generic fetcher
+  const fetchData = async (setter, loadingSetter, filters = {}) => {
+    loadingSetter(true);
+    try {
+      let url = `/products?limit=10`;
+      if (filters.sort) url += `&sort=${filters.sort}`;
+      if (filters.gender) url += `&gender=${filters.gender}`;
+      if (filters.category) url += `&category=${filters.category}`;
+      if (filters.season) url += `&season=${filters.season}`;
+      if (filters.isPinnedTopDeals) url += `&isPinnedTopDeals=${filters.isPinnedTopDeals}`;
+      const res = await API.get(url);
+      setter(res.data.products);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      loadingSetter(false);
+    }
+  };
+
+  useEffect(() => { fetchData(setDeals, setDealsLoading, { sort: '-ratings.average', season: selectedDealsTag, isPinnedTopDeals: true }); }, [selectedDealsTag]);
+  useEffect(() => { fetchData(setMenProducts, setMenLoading, { gender: 'Men', category: selectedMenTag }); }, [selectedMenTag]);
+  useEffect(() => { fetchData(setWomenProducts, setWomenLoading, { gender: 'Women', category: selectedWomenTag }); }, [selectedWomenTag]);
+  useEffect(() => { fetchData(setKidsProducts, setKidsLoading, { gender: 'Kids', category: selectedKidsTag }); }, [selectedKidsTag]);
+
+  const [initialLoading, setInitialLoading] = useState(true);
+
+  // Global loader tracking logic
+  useEffect(() => {
+    // Only remove initial loader once all primary sections fetch for the first time
+    if (!dealsLoading && !menLoading && !womenLoading && !kidsLoading) {
+      setInitialLoading(false);
+    }
+  }, [dealsLoading, menLoading, womenLoading, kidsLoading]);
+
+  // Promotional Offers State
+  const [activeOffer, setActiveOffer] = useState(0);
+  const offers = [
+    { id: 1, text: "BUY 1 GET 1 FREE", subtext: "On Bestsellers", color: "linear-gradient(135deg, #6366f1, #a855f7)" },
+    { id: 2, text: "FLAT ₹500 OFF", subtext: "On orders above ₹1499", color: "linear-gradient(135deg, #f43f5e, #fb923c)" },
+    { id: 3, text: "EXTRA 10% OFF", subtext: "For VIP Members", color: "linear-gradient(135deg, #06b6d4, #0ea5e9)" },
+    { id: 4, text: "FREE SHIPPING", subtext: "On Prepaid Orders", color: "linear-gradient(135deg, #10b981, #3b82f6)" }
   ];
-
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
-
-  const nextSlide = useCallback(() => {
-    setCurrentSlide((prev) => (prev + 1) % bannerSlides.length);
-  }, [bannerSlides.length]);
-
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + bannerSlides.length) % bannerSlides.length);
-    handleManualAction();
-  };
-
-  const handleManualAction = () => {
-    setIsPaused(true);
-    setTimeout(() => setIsPaused(false), 10000);
-  };
 
   useEffect(() => {
-    if (isPaused) return;
-    const timer = setInterval(nextSlide, 5000);
+    const timer = setInterval(() => {
+      setActiveOffer((prev) => (prev + 1) % offers.length);
+    }, 5000); // 5 seconds for slower auto-slide
     return () => clearInterval(timer);
-  }, [nextSlide, isPaused]);
+  }, [offers.length]);
 
-  const features = [
-    { icon: <FiTruck />, title: 'EXPRESS DELIVERY', desc: 'Arriving in 1-2 business days' },
-    { icon: <FiRefreshCw />, title: 'REFUND POLICY', desc: 'Worry-free 7-day returns' },
-    { icon: <FiShield />, title: 'AUTHENTICITY', desc: '100% verified genuine products' },
-    { icon: <FiCreditCard />, title: 'EASY CHECKOUT', desc: 'UPI, Cards & Net Banking' },
-  ];
+  if (initialLoading) {
+    return (
+      <div className="home-page" style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Loader />
+      </div>
+    );
+  }
 
   return (
     <div className="home-page">
-      {/* Hero Banner */}
-      <section className="hero-banner">
-        {bannerSlides.map((slide, idx) => (
-          <div
-            key={idx}
-            className={`hero-slide ${idx === currentSlide ? 'active' : ''}`}
-          >
-            <div
-              className="hero-image"
-              style={{
-                backgroundImage: `url(${slide.image})`,
-                backgroundPosition: slide.position || 'center'
-              }}
-            />
-            <div className="hero-overlay" />
-            <div className="container">
-              <div className="hero-content">
-                <h1 className="stagger-in stagger-delay-1">{slide.title}</h1>
-                <div className="hero-subtitle stagger-in stagger-delay-2">{slide.subtitle}</div>
-                <div className="hero-description stagger-in stagger-delay-3">{slide.description}</div>
-                <Link to={slide.link} className={`hero-cta ${slide.btnClass} stagger-in stagger-delay-4`}>
-                  {slide.cta} <FiArrowRight />
-                </Link>
-              </div>
-            </div>
-          </div>
-        ))}
+      <ProductSection 
+        title="Top Deals" 
+        viewAllLink="/products" 
+        collections={dealCollections} 
+        selectedTag={selectedDealsTag} 
+        onTagChange={setSelectedDealsTag} 
+        products={deals} 
+        loading={dealsLoading} 
+        scrollRef={dealsScrollRef} 
+        onScroll={(dir) => scroll(dealsScrollRef, dir)} 
+      />
 
-        {/* Banner Navigation Arrows */}
-        <button className="banner-nav prev" onClick={prevSlide}>
-          <FiChevronLeft />
-        </button>
-        <button className="banner-nav next" onClick={() => { nextSlide(); handleManualAction(); }}>
-          <FiChevronRight />
-        </button>
+      <ProductSection 
+        title="Men's Collection" 
+        viewAllLink="/products/Men" 
+        collections={menCollections} 
+        selectedTag={selectedMenTag} 
+        onTagChange={setSelectedMenTag} 
+        products={menProducts} 
+        loading={menLoading} 
+        scrollRef={menScrollRef} 
+        onScroll={(dir) => scroll(menScrollRef, dir)} 
+      />
 
-        <div className="hero-dots">
-          {bannerSlides.map((_, idx) => (
-            <button
-              key={idx}
-              className={`dot ${idx === currentSlide ? 'active' : ''}`}
-              onClick={() => { setCurrentSlide(idx); handleManualAction(); }}
-            />
-          ))}
-        </div>
-      </section>
+      <ProductSection 
+        title="Women's Collection" 
+        viewAllLink="/products/Women" 
+        collections={womenCollections} 
+        selectedTag={selectedWomenTag} 
+        onTagChange={setSelectedWomenTag} 
+        products={womenProducts} 
+        loading={womenLoading} 
+        scrollRef={womenScrollRef} 
+        onScroll={(dir) => scroll(womenScrollRef, dir)} 
+      />
 
-      {/* Features Strip */}
-      <section className="features-strip">
+      <ProductSection 
+        title="Kids' Collection" 
+        viewAllLink="/products/Kids" 
+        collections={kidsCollections} 
+        selectedTag={selectedKidsTag} 
+        onTagChange={setSelectedKidsTag} 
+        products={kidsProducts} 
+        loading={kidsLoading} 
+        scrollRef={kidsScrollRef} 
+        onScroll={(dir) => scroll(kidsScrollRef, dir)} 
+      />
+      {/* Promotional Offers Slider (Hyper-Density) */}
+      <section className="section offers-section">
         <div className="container">
-          <div className="features-grid">
-            {features.map((f, i) => (
-              <div key={i} className="feature-item">
-                <div className="feature-icon">{f.icon}</div>
-                <div>
-                  <strong>{f.title}</strong>
-                  <span>{f.desc}</span>
+          <div className="offer-slider-container">
+            <div 
+              className="offer-track" 
+              style={{ transform: `translateX(-${activeOffer * 100}%)` }}
+            >
+              {offers.map((offer) => (
+                <div key={offer.id} className="offer-card slider" style={{ background: offer.color }}>
+                  <div className="offer-badge">LIMITED TIME</div>
+                  <div className="offer-content">
+                    <h3 className="offer-text">{offer.text}</h3>
+                    <p className="offer-subtext">{offer.subtext}</p>
+                  </div>
+                  <FiArrowRight className="offer-arrow" />
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-
-      {/* Top Deals */}
-      <section className="section deals-section">
-        <div className="container">
-          <div className="section-header">
-            <h2 className="section-title">Top Deals 🔥</h2>
-            <Link to="/products" className="view-all">
-              View All <FiArrowRight />
-            </Link>
-          </div>
-          {loading ? (
-            <Loader />
-          ) : (
-            <div className="product-grid">
-              {products.slice(0, 8).map((product) => (
-                <ProductCard key={product._id} product={product} />
               ))}
             </div>
-          )}
-        </div>
-      </section>
-
-      {/* Promo Banner */}
-      <section className="promo-section">
-        <div className="container">
-          <div className="promo-grid">
-            <div className="promo-card promo-men" style={{
-              backgroundImage: 'linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.8)), url(https://images.unsplash.com/photo-1490578474895-699cd4e2cf59?w=800)',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center'
-            }}>
-              <div className="promo-content">
-                <h3>Men's Collection</h3>
-                <p>Starting from ₹499</p>
-                <Link to="/products/Men" className="btn btn-sm hero-cta">
-                  Shop Now <FiArrowRight />
-                </Link>
-              </div>
+            {/* Pagination Dots */}
+            <div className="offer-dots">
+              {offers.map((_, i) => (
+                <span key={i} className={`offer-dot ${activeOffer === i ? 'active' : ''}`}></span>
+              ))}
             </div>
-            <div className="promo-card promo-women" style={{
-              backgroundImage: 'linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.8)), url(https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800)',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center'
-            }}>
-              <div className="promo-content">
-                <h3>Women's Stylings</h3>
-                <p>Up to 60% off</p>
-                <Link to="/products/Women" className="btn btn-sm hero-cta">
-                  Shop Now <FiArrowRight />
-                </Link>
-              </div>
-            </div>
-            <div className="promo-card promo-kids" style={{
-              backgroundImage: 'linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.8)), url(https://images.unsplash.com/photo-1519238263530-99bdd11df2ea?w=800)',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center'
-            }}>
-              <div className="promo-content">
-                <h3>Kids' Hub</h3>
-                <p>Buy 2 Get 1 Free</p>
-                <Link to="/products/Kids" className="btn btn-sm hero-cta">
-                  Shop Now <FiArrowRight />
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* New Arrivals */}
-      <section className="section arrivals-section">
-        <div className="container">
-          <div className="section-header">
-            <h2 className="section-title">New Arrivals ✨</h2>
-            <Link to="/products?sort=-createdAt" className="view-all">
-              View All <FiArrowRight />
-            </Link>
-          </div>
-          <div className="product-grid">
-            {products.slice(4, 12).map((product) => (
-              <ProductCard key={product._id} product={product} />
-            ))}
           </div>
         </div>
       </section>

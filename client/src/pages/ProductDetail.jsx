@@ -85,6 +85,16 @@ const ProductDetail = () => {
     }
   };
 
+  const [zoomActive, setZoomActive] = useState(false);
+  const [zoomPos, setZoomPos] = useState({ x: 0, y: 0 });
+
+  const handleMouseMove = (e) => {
+    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
+    const x = ((e.pageX - left - window.scrollX) / width) * 100;
+    const y = ((e.pageY - top - window.scrollY) / height) * 100;
+    setZoomPos({ x, y });
+  };
+
   if (loading) {
     return (
       <div className="container" style={{ padding: '40px 16px' }}>
@@ -114,9 +124,21 @@ const ProductDetail = () => {
         {/* Breadcrumb */}
         <div className="detail-breadcrumb">
           <span onClick={() => navigate('/')}>Home</span>
-          <FiChevronRight />
-          <span onClick={() => navigate('/products')}>Products</span>
-          <FiChevronRight />
+          <FiChevronRight className="breadcrumb-sep" />
+          {product.gender && (
+            <>
+              <span onClick={() => navigate(`/products?gender=${product.gender}`)}>{product.gender}</span>
+              <FiChevronRight className="breadcrumb-sep" />
+            </>
+          )}
+          {product.category && (
+            <>
+              <span onClick={() => navigate(`/products?category=${product.category._id}`)}>
+                {typeof product.category === 'object' ? product.category.name : product.category}
+              </span>
+              <FiChevronRight className="breadcrumb-sep" />
+            </>
+          )}
           <span className="current">{product.name}</span>
         </div>
 
@@ -134,10 +156,19 @@ const ProductDetail = () => {
                 </button>
               ))}
             </div>
-            <div className="gallery-main">
+            <div 
+              className="gallery-main zoom-container"
+              onMouseEnter={() => setZoomActive(true)}
+              onMouseLeave={() => setZoomActive(false)}
+              onMouseMove={handleMouseMove}
+            >
               <img
                 src={getProductImage(product.images?.[selectedImage], 'https://via.placeholder.com/500')}
                 alt={product.name}
+                className={zoomActive ? 'zoomed' : ''}
+                style={{
+                  transformOrigin: `${zoomPos.x}% ${zoomPos.y}%`
+                }}
               />
 
               {discount > 0 && <span className="detail-discount-badge">{discount}% OFF</span>}

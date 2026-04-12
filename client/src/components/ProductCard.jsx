@@ -62,7 +62,6 @@ const ProductCard = ({ product }) => {
 
       <div className="product-info">
         <div className="product-meta">
-          <span className="product-brand">{product.brand}</span>
           {product.ratings?.count > 0 && (
             <div className="product-rating">
               {product.ratings.average} <FiStar className="star-icon" />

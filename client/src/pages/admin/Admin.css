@@ -450,3 +450,167 @@
   background: var(--admin-bg);
   border-bottom: 1px solid var(--admin-border);
 }
+
+/* ── Pin Banner ──────────────────────────── */
+.pin-banner {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.pin-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border: 2px solid var(--admin-border);
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--admin-text-muted);
+  background: white;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.pin-toggle input { display: none; }
+
+.pin-toggle:hover {
+  border-color: #6366F1;
+  color: #6366F1;
+}
+
+.pin-toggle.active {
+  background: linear-gradient(135deg, #EEF2FF, #E0E7FF);
+  border-color: #6366F1;
+  color: #4338CA;
+}
+
+.pin-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: 800;
+  background: #6366F1;
+  color: white;
+  letter-spacing: 0.3px;
+}
+
+.pin-badge.featured {
+  background: #F59E0B;
+  color: white;
+}
+
+/* ── Season Chips ────────────────────────── */
+.season-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.season-chip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 14px;
+  border: 1.5px solid var(--admin-border);
+  border-radius: 99px;
+  cursor: pointer;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--admin-text-muted);
+  background: white;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.season-chip:hover {
+  border-color: var(--admin-primary);
+  color: var(--admin-primary);
+}
+
+.season-chip.active {
+  background: var(--admin-primary);
+  border-color: var(--admin-primary);
+  color: white;
+  box-shadow: 0 3px 8px rgba(59, 130, 246, 0.25);
+}
+
+/* ── Color Typeahead ─────────────────────── */
+.color-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.color-swatch-preview {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  transition: transform 0.2s;
+}
+
+.color-typeahead input {
+  width: 100%;
+  padding: 9px 14px;
+  border: 1.5px solid var(--admin-border);
+  border-radius: 10px;
+  font-size: 13px;
+  background: white;
+  transition: border-color 0.2s;
+}
+
+.color-typeahead input:focus {
+  border-color: var(--admin-primary);
+  outline: none;
+}
+
+.color-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1.5px solid var(--admin-border);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  z-index: 500;
+  overflow: hidden;
+}
+
+.color-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: background 0.15s ease;
+}
+
+.color-option:hover { background: #F8FAFC; }
+
+.color-option-swatch {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+/* Size row */
+.size-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.size-row select, .size-row input { flex: 1; }

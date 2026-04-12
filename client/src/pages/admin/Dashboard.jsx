@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { FiHome, FiPackage, FiShoppingBag, FiUsers, FiLogOut, FiPlus, FiTrendingUp, FiAlertTriangle, FiGrid, FiUser } from 'react-icons/fi';
+import { FiHome, FiPackage, FiShoppingBag, FiUsers, FiLogOut, FiPlus, FiTrendingUp, FiAlertTriangle, FiGrid, FiUser, FiSettings } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
 import API from '../../utils/api';
 import './Admin.css';
@@ -37,7 +37,7 @@ const AdminLayout = ({ children, title }) => {
           </Link>
         </nav>
         <div className="admin-sidebar-footer">
-          <Link to="/" className="admin-nav-item"><FiHome /> View Store</Link>
+          <Link to="/admin/settings" className="admin-nav-item"><FiSettings /> Edit Store</Link>
           <button className="admin-nav-item logout" onClick={() => { logout(); navigate('/'); }}>
             <FiLogOut /> Logout
           </button>

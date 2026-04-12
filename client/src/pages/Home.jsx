@@ -4,6 +4,7 @@ import { FiArrowRight, FiUser, FiHeart, FiChevronLeft, FiChevronRight } from 're
 import API from '../utils/api';
 import ProductCard from '../components/ProductCard';
 import Loader from '../components/Loader';
+import { useSettings } from '../context/SettingsContext';
 import './Home.css';
 
 // Local Sub-component with Vertical Sidebar Filters (Reference Based)
@@ -23,7 +24,7 @@ const ProductSection = ({ title, viewAllLink, collections, selectedTag, onTagCha
             <span className="sidebar-title">Filters</span>
             {selectedTag && <span className="sidebar-badge">1</span>}
           </div>
-          
+
           <div className="sidebar-group">
             <label className="group-label">CATEGORY</label>
             <div className="filter-list-vertical">
@@ -66,6 +67,8 @@ const ProductSection = ({ title, viewAllLink, collections, selectedTag, onTagCha
 );
 
 const Home = () => {
+  const { settings } = useSettings();
+  
   // Top Deals State
   const [deals, setDeals] = useState([]);
   const [dealsLoading, setDealsLoading] = useState(true);
@@ -155,19 +158,15 @@ const Home = () => {
 
   // Promotional Offers State
   const [activeOffer, setActiveOffer] = useState(0);
-  const offers = [
-    { id: 1, text: "BUY 1 GET 1 FREE", subtext: "On Bestsellers", color: "linear-gradient(135deg, #6366f1, #a855f7)" },
-    { id: 2, text: "FLAT ₹500 OFF", subtext: "On orders above ₹1499", color: "linear-gradient(135deg, #f43f5e, #fb923c)" },
-    { id: 3, text: "EXTRA 10% OFF", subtext: "For VIP Members", color: "linear-gradient(135deg, #06b6d4, #0ea5e9)" },
-    { id: 4, text: "FREE SHIPPING", subtext: "On Prepaid Orders", color: "linear-gradient(135deg, #10b981, #3b82f6)" }
-  ];
+  const banners = settings?.banners?.length ? settings.banners : [];
 
   useEffect(() => {
+    if (banners.length <= 1) return;
     const timer = setInterval(() => {
-      setActiveOffer((prev) => (prev + 1) % offers.length);
+      setActiveOffer((prev) => (prev + 1) % banners.length);
     }, 5000); // 5 seconds for slower auto-slide
     return () => clearInterval(timer);
-  }, [offers.length]);
+  }, [banners.length]);
 
   if (initialLoading) {
     return (
@@ -179,81 +178,89 @@ const Home = () => {
 
   return (
     <div className="home-page">
-      <ProductSection 
-        title="Top Deals" 
-        viewAllLink="/products" 
-        collections={dealCollections} 
-        selectedTag={selectedDealsTag} 
-        onTagChange={setSelectedDealsTag} 
-        products={deals} 
-        loading={dealsLoading} 
-        scrollRef={dealsScrollRef} 
-        onScroll={(dir) => scroll(dealsScrollRef, dir)} 
+      <ProductSection
+        title="Top Deals"
+        viewAllLink="/products"
+        collections={dealCollections}
+        selectedTag={selectedDealsTag}
+        onTagChange={setSelectedDealsTag}
+        products={deals}
+        loading={dealsLoading}
+        scrollRef={dealsScrollRef}
+        onScroll={(dir) => scroll(dealsScrollRef, dir)}
       />
 
-      <ProductSection 
-        title="Men's Collection" 
-        viewAllLink="/products/Men" 
-        collections={menCollections} 
-        selectedTag={selectedMenTag} 
-        onTagChange={setSelectedMenTag} 
-        products={menProducts} 
-        loading={menLoading} 
-        scrollRef={menScrollRef} 
-        onScroll={(dir) => scroll(menScrollRef, dir)} 
+      <ProductSection
+        title="Men's Collection"
+        viewAllLink="/products/Men"
+        collections={menCollections}
+        selectedTag={selectedMenTag}
+        onTagChange={setSelectedMenTag}
+        products={menProducts}
+        loading={menLoading}
+        scrollRef={menScrollRef}
+        onScroll={(dir) => scroll(menScrollRef, dir)}
       />
 
-      <ProductSection 
-        title="Women's Collection" 
-        viewAllLink="/products/Women" 
-        collections={womenCollections} 
-        selectedTag={selectedWomenTag} 
-        onTagChange={setSelectedWomenTag} 
-        products={womenProducts} 
-        loading={womenLoading} 
-        scrollRef={womenScrollRef} 
-        onScroll={(dir) => scroll(womenScrollRef, dir)} 
+      <ProductSection
+        title="Women's Collection"
+        viewAllLink="/products/Women"
+        collections={womenCollections}
+        selectedTag={selectedWomenTag}
+        onTagChange={setSelectedWomenTag}
+        products={womenProducts}
+        loading={womenLoading}
+        scrollRef={womenScrollRef}
+        onScroll={(dir) => scroll(womenScrollRef, dir)}
       />
 
-      <ProductSection 
-        title="Kids' Collection" 
-        viewAllLink="/products/Kids" 
-        collections={kidsCollections} 
-        selectedTag={selectedKidsTag} 
-        onTagChange={setSelectedKidsTag} 
-        products={kidsProducts} 
-        loading={kidsLoading} 
-        scrollRef={kidsScrollRef} 
-        onScroll={(dir) => scroll(kidsScrollRef, dir)} 
+      <ProductSection
+        title="Kids' Collection"
+        viewAllLink="/products/Kids"
+        collections={kidsCollections}
+        selectedTag={selectedKidsTag}
+        onTagChange={setSelectedKidsTag}
+        products={kidsProducts}
+        loading={kidsLoading}
+        scrollRef={kidsScrollRef}
+        onScroll={(dir) => scroll(kidsScrollRef, dir)}
       />
       {/* Promotional Offers Slider (Hyper-Density) */}
-      <section className="section offers-section">
-        <div className="container">
-          <div className="offer-slider-container">
-            <div 
-              className="offer-track" 
-              style={{ transform: `translateX(-${activeOffer * 100}%)` }}
-            >
-              {offers.map((offer) => (
-                <div key={offer.id} className="offer-card slider" style={{ background: offer.color }}>
-                  <div className="offer-badge">LIMITED TIME</div>
-                  <div className="offer-content">
-                    <h3 className="offer-text">{offer.text}</h3>
-                    <p className="offer-subtext">{offer.subtext}</p>
+      {banners.length > 0 && (
+        <section className="section offers-section">
+          <div className="container">
+            <div className="offer-slider-container">
+              <div
+                className="offer-track"
+                style={{ transform: `translateX(-${activeOffer * 100}%)` }}
+              >
+                {banners.map((banner, i) => (
+                  <div key={i} className="offer-card slider" style={{
+                    background: banner.image ? `url(${banner.image}) center/cover no-repeat` : banner.color || 'var(--primary)',
+                    color: 'white'
+                  }}>
+                    <div className="img-overlay" style={{ background: banner.image ? 'rgba(0,0,0,0.4)' : 'transparent', zIndex: 1 }}></div>
+                    <div className="offer-badge" style={{ zIndex: 2 }}>LIMITED TIME</div>
+                    <div className="offer-content" style={{ zIndex: 2 }}>
+                      <h3 className="offer-text">{banner.text}</h3>
+                      <p className="offer-subtext">{banner.subtext}</p>
+                    </div>
+                    <FiArrowRight className="offer-arrow" style={{ zIndex: 2 }} />
                   </div>
-                  <FiArrowRight className="offer-arrow" />
+                ))}
+              </div>
+              {/* Pagination Dots */}
+              {banners.length > 1 && (
+                <div className="offer-dots">
+                  {banners.map((_, i) => (
+                    <span key={i} className={`offer-dot ${activeOffer === i ? 'active' : ''}`}></span>
+                  ))}
                 </div>
-              ))}
-            </div>
-            {/* Pagination Dots */}
-            <div className="offer-dots">
-              {offers.map((_, i) => (
-                <span key={i} className={`offer-dot ${activeOffer === i ? 'active' : ''}`}></span>
-              ))}
+              )}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </div>
   );
 };

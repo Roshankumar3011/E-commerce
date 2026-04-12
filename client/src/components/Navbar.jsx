@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { FiSearch, FiShoppingCart, FiHeart, FiUser, FiMenu, FiX, FiChevronDown, FiPackage, FiLogOut, FiSettings, FiClock, FiTrendingUp } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
+import { useSettings } from '../context/SettingsContext';
 import API from '../utils/api';
 import './Navbar.css';
 
@@ -26,6 +27,7 @@ const removeRecentSearch = (query) => {
 
 const Navbar = () => {
   const { user, logout } = useAuth();
+  const { settings } = useSettings();
   const { cartCount } = useCart();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
@@ -115,8 +117,14 @@ const Navbar = () => {
       <div className="navbar-container">
         {/* Logo */}
         <Link to="/" className="navbar-logo">
-          <span className="logo-text">FLIP</span>
-          <span className="logo-accent">STYLE</span>
+          {settings?.logoUrl ? (
+            <img src={settings.logoUrl} alt="Store Logo" style={{ maxHeight: '35px' }} />
+          ) : (
+            <>
+              <span className="logo-text">FLIP</span>
+              <span className="logo-accent">STYLE</span>
+            </>
+          )}
         </Link>
 
 

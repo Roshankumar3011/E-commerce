@@ -75,7 +75,7 @@ const Login = () => {
             </div>
 
             <p className="auth-switch stagger-in stagger-delay-5">
-              New to FlipStyle? <Link to="/register">Create an account</Link>
+              New to Balajee? <Link to="/register">Create an account</Link>
             </p>
           </form>
         </div>

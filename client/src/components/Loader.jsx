@@ -27,10 +27,10 @@ const Loader = ({ fullScreen = false }) => {
       <div className="loader-content">
         <div className="loader-graphic">
           <div className="pulse-circle"></div>
-          <div className="logo-icon">FS</div>
+          <div className="logo-icon">B</div>
         </div>
         <div className="loader-text-wrap">
-          <p className="loader-quote animate-slideUp" key={quoteIdx}>
+          <p className="loader-quote brand-font animate-slideUp" key={quoteIdx}>
             {quotes[quoteIdx]}
           </p>
           <div className="loader-progress-bar">

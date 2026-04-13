@@ -79,7 +79,33 @@
 }
 
 @media (max-width: 768px) {
+  .cart-page { padding-top: 45px; }
   .cart-layout { grid-template-columns: 1fr; }
-  .cart-item-img { width: 90px; height: 110px; }
   .cart-summary { position: static; }
+}
+
+@media (max-width: 480px) {
+  .cart-item {
+    flex-direction: column;
+    gap: 16px;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .cart-item-img {
+    width: 140px;
+    height: 180px;
+  }
+  
+  .cart-item-actions {
+    justify-content: center;
+  }
+  
+  .cart-item-pricing {
+    justify-content: center;
+  }
+  
+  .cart-item-meta {
+    justify-content: center;
+  }
 }

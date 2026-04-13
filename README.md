@@ -1,6 +1,6 @@
-# FlipStyle - E-Commerce Application (Flipkart Clone)
+# Balajee - E-Commerce Application (Premium Fashion Store)
 
-A full-stack MERN (MongoDB, Express.js, React.js, Node.js) e-commerce web application similar to Flipkart, focused on clothing products.
+A full-stack MERN (MongoDB, Express.js, React.js, Node.js) e-commerce web application, focused on clothing products.
 
 ## 🚀 Features
 

@@ -68,10 +68,16 @@
 }
 
 .loader-quote {
-  font-size: 16px;
+  font-size: 18px;
   color: var(--text-muted);
   font-weight: 500;
   min-height: 24px;
+}
+
+.loader-quote.brand-font {
+  font-family: var(--font-handwriting);
+  font-size: 24px;
+  color: var(--primary);
 }
 
 .loader-progress-bar {

@@ -1,7 +1,7 @@
 {
-  "name": "flipkart-server",
+  "name": "balajee-server",
   "version": "1.0.0",
-  "description": "Backend API for Flipkart Clone",
+  "description": "Backend API for Balajee E-Commerce",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

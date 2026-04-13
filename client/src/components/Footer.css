@@ -15,8 +15,9 @@
 }
 
 .footer-brand {
-  font-size: 24px;
-  font-weight: 800;
+  font-family: var(--font-handwriting);
+  font-size: 32px;
+  font-weight: 700;
   margin-bottom: 12px;
 }
 
@@ -25,7 +26,7 @@
 }
 
 .footer-brand .accent {
-  color: #ffe500;
+  color: var(--primary);
 }
 
 .footer-col p {
@@ -126,14 +127,28 @@
 
 @media (max-width: 768px) {
   .footer-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
+    grid-template-columns: 1fr;
+    gap: 32px;
+    text-align: center;
+  }
+  
+  .footer-brand, .footer-social, .contact-list li {
+    justify-content: center;
+  }
+
+  .footer-col h4 {
+    font-size: 14px;
+  }
+
+  .footer-col ul li a, .contact-list li {
+    font-size: 13px;
   }
 
   .footer-bottom .container {
     flex-direction: column;
+    justify-content: center;
     gap: 12px;
-    text-align: center;
+    font-size: 12px;
   }
 }
 

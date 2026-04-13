@@ -41,6 +41,13 @@
 
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   --font: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-handwriting: 'Caveat', cursive;
+
+
+  /* Breakpoints */
+  --breakpoint-lg: 1024px;
+  --breakpoint-md: 768px;
+  --breakpoint-sm: 480px;
 }
 
 
@@ -52,6 +59,11 @@
 
 html {
   scroll-behavior: smooth;
+}
+
+html, body {
+  overflow-x: hidden;
+  width: 100%;
 }
 
 body {
@@ -106,6 +118,12 @@ input, select, textarea {
   max-width: 1400px;
   margin: 0 auto;
   padding: 0 16px;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 12px;
+  }
 }
 
 .btn {
@@ -334,6 +352,9 @@ input, select, textarea {
 
 /* =========== RESPONSIVE =========== */
 @media (max-width: 768px) {
+  .app {
+    padding-bottom: 70px;
+  }
   .container {
     padding: 0 12px;
   }

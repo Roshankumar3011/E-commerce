@@ -16,7 +16,7 @@ const Footer = () => {
                 {settings?.logoUrl ? (
                    <img src={settings.logoUrl} alt="Store Logo" style={{ maxHeight: '35px' }} />
                 ) : (
-                   <><span className="logo-text">FLIP</span><span className="accent">STYLE</span></>
+                   <><span className="logo-text">BALA</span><span className="accent">JEE</span></>
                 )}
               </h3>
               <p>India's leading online fashion store. Discover the latest trends in clothing for Men, Women & Kids.</p>
@@ -51,7 +51,7 @@ const Footer = () => {
             <div className="footer-col">
               <h4>Contact</h4>
               <ul className="contact-list">
-                <li><FiMail /> {settings?.contact?.email || 'support@flipstyle.com'}</li>
+                <li><FiMail /> {settings?.contact?.email || 'support@balajee.com'}</li>
                 <li><FiPhone /> {settings?.contact?.phone || '+91 1800-123-4567'}</li>
                 <li><FiMapPin /> {settings?.contact?.address || 'Mumbai, India'}</li>
               </ul>
@@ -62,7 +62,7 @@ const Footer = () => {
 
       <div className="footer-bottom">
         <div className="container">
-          <p>&copy; 2024 FlipStyle. All rights reserved.</p>
+          <p>&copy; 2024 Balajee. All rights reserved.</p>
           <div className="footer-links">
             <a href="#">Privacy Policy</a>
             <a href="#">Terms of Service</a>

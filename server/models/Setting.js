@@ -10,7 +10,7 @@ const bannerSchema = new mongoose.Schema({
 const settingSchema = new mongoose.Schema({
   logoUrl: { type: String, default: '' },
   contact: {
-    email: { type: String, default: 'support@flipstyle.com' },
+    email: { type: String, default: 'support@balajee.com' },
     phone: { type: String, default: '+91 1800-123-4567' },
     address: { type: String, default: 'Mumbai, India' }
   },

@@ -13,7 +13,7 @@ const AdminSettings = () => {
   
   const DEFAULT_SETTINGS = {
     logoUrl: '',
-    contact: { email: 'support@flipstyle.com', phone: '+91 1800-123-4567', address: 'Mumbai, India' },
+    contact: { email: 'support@balajee.com', phone: '+91 1800-123-4567', address: 'Mumbai, India' },
     socialLinks: { facebook: '#', twitter: '#', linkedin: '#', instagram: '#' },
     banners: [
       { image: '', text: "BUY 1 GET 1 FREE", subtext: "On Bestsellers", color: "linear-gradient(135deg, #6366f1, #a855f7)" },
@@ -194,7 +194,7 @@ const AdminSettings = () => {
           <div className="form-row" style={{ marginTop: '12px' }}>
             <div className="input-group">
               <label>Support Email</label>
-              <input value={form.contact.email} onChange={(e) => handleContactChange('email', e.target.value)} placeholder="support@flipstyle.com" />
+              <input value={form.contact.email} onChange={(e) => handleContactChange('email', e.target.value)} placeholder="support@balajee.com" />
             </div>
             <div className="input-group">
               <label>Support Phone</label>

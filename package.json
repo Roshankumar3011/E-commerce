@@ -1,7 +1,7 @@
 {
-  "name": "flipkart-clone",
+  "name": "balajee-ecommerce",
   "version": "1.0.0",
-  "description": "Full-stack MERN e-commerce application similar to Flipkart",
+  "description": "Full-stack MERN e-commerce application for Balajee Clothing",
   "scripts": {
     "server": "cd server && npm run dev",
     "client": "cd client && npm run dev",

@@ -7,7 +7,7 @@ import { useSettings } from '../context/SettingsContext';
 import API from '../utils/api';
 import './Navbar.css';
 
-const RECENT_KEY = 'flipstyle_recent_searches';
+const RECENT_KEY = 'balajee_recent_searches';
 const MAX_RECENT = 6;
 
 const getRecentSearches = () => {
@@ -36,7 +36,6 @@ const Navbar = () => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
-  const [mobileMenu, setMobileMenu] = useState(false);
   const dropdownRef = useRef(null);
   const searchRef = useRef(null);
   const debounceRef = useRef(null);
@@ -85,7 +84,6 @@ const Navbar = () => {
       setSearchQuery('');
       setSuggestions([]);
       setShowSuggestions(false);
-      setMobileMenu(false);
     }
   };
 
@@ -121,8 +119,8 @@ const Navbar = () => {
             <img src={settings.logoUrl} alt="Store Logo" style={{ maxHeight: '35px' }} />
           ) : (
             <>
-              <span className="logo-text">FLIP</span>
-              <span className="logo-accent">STYLE</span>
+              <span className="logo-text">BALA</span>
+              <span className="logo-accent">JEE</span>
             </>
           )}
         </Link>
@@ -186,12 +184,6 @@ const Navbar = () => {
             </div>
           )}
         </div>
-        {/* Nav Categories */}
-        <div className={`navbar-categories ${mobileMenu ? 'show' : ''}`}>
-          <Link to="/products/Men" className="nav-cat" onClick={() => setMobileMenu(false)}>Men</Link>
-          <Link to="/products/Women" className="nav-cat" onClick={() => setMobileMenu(false)}>Women</Link>
-          <Link to="/products/Kids" className="nav-cat" onClick={() => setMobileMenu(false)}>Kids</Link>
-        </div>
 
         {/* Actions */}
         <div className="navbar-actions">
@@ -242,10 +234,6 @@ const Navbar = () => {
             <FiShoppingCart />
             {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
           </Link>
-
-          <button className="mobile-toggle" onClick={() => setMobileMenu(!mobileMenu)}>
-            {mobileMenu ? <FiX /> : <FiMenu />}
-          </button>
         </div>
       </div>
     </nav>

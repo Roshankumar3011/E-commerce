@@ -11,7 +11,7 @@
   display: flex;
   min-height: 100vh;
   background: var(--admin-bg);
-  font-family: 'Outfit', system-ui, sans-serif;
+  font-family: var(--font), system-ui, sans-serif;
 }
 
 
@@ -73,18 +73,19 @@
 }
 
 .admin-logo {
-  font-size: 26px;
-  font-weight: 800;
+  font-family: var(--font-handwriting);
+  font-size: 32px;
+  font-weight: 700;
   text-decoration: none;
-  color: var(--admin-text-main);
+  color: var(--text-primary);
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 8px;
+  gap: 2px;
 }
 
 .admin-logo .accent { 
-  color: var(--admin-primary); 
+  color: var(--primary); 
 }
 
 .admin-nav {
@@ -614,3 +615,102 @@
 }
 
 .size-row select, .size-row input { flex: 1; }
+
+/* ── Mobile Responsive Overrides ────────────────────────── */
+@media (max-width: 1024px) {
+  .admin-content {
+    margin-left: 0;
+    padding: 0 24px 24px;
+  }
+
+  .admin-sidebar {
+    transform: translateX(-100%);
+    box-shadow: 20px 0 50px rgba(0,0,0,0.1);
+  }
+
+  .admin-sidebar.show {
+    transform: translateX(0);
+  }
+
+  .admin-mobile-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: white;
+    border: 1px solid var(--admin-border);
+    border-radius: 8px;
+    font-size: 20px;
+    cursor: pointer;
+    color: var(--primary);
+  }
+
+  .admin-sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+    z-index: 999;
+    display: block !important;
+  }
+
+  .admin-sidebar-close {
+    display: flex !important;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: var(--admin-text-muted);
+    cursor: pointer;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-topbar {
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 16px 0;
+  }
+
+  .admin-topbar h1 {
+    font-size: 20px;
+    order: 2;
+    flex: 1;
+  }
+
+  .admin-mobile-toggle {
+    order: 1;
+  }
+
+  .admin-user {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-table-wrap {
+    overflow-x: auto;
+  }
+
+  .admin-table {
+    min-width: 600px;
+  }
+
+  .product-form-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+/* Base styles for new components */
+.admin-mobile-toggle { display: none; }
+.admin-sidebar-close { display: none; }
+.admin-sidebar-overlay { display: none; }
+

@@ -1,12 +1,13 @@
 import { useState } from 'react';
-import { FiUser, FiMail, FiPhone, FiEdit2, FiSave } from 'react-icons/fi';
+import { FiUser, FiMail, FiPhone, FiEdit2, FiSave, FiPackage, FiHeart, FiChevronRight, FiLogOut } from 'react-icons/fi';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import API from '../utils/api';
 import toast from 'react-hot-toast';
 import './Profile.css';
 
 const Profile = () => {
-  const { user, updateProfile, setUser } = useAuth();
+  const { user, updateProfile, setUser, logout } = useAuth();
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({ name: user?.name || '', phone: user?.phone || '' });
   const [changingPass, setChangingPass] = useState(false);
@@ -85,8 +86,41 @@ const Profile = () => {
                   <div className="profile-field"><FiUser /><div><label>Name</label><p>{user?.name}</p></div></div>
                   <div className="profile-field"><FiMail /><div><label>Email</label><p>{user?.email}</p></div></div>
                   <div className="profile-field"><FiPhone /><div><label>Phone</label><p>{user?.phone || 'Not provided'}</p></div></div>
-                  <button className="btn btn-outline btn-sm" onClick={() => setEditing(true)}><FiEdit2 /> Edit Profile</button>
+                  <div className="profile-card-actions">
+                    <button className="btn btn-outline btn-sm" onClick={() => setEditing(true)}><FiEdit2 /> Edit Profile</button>
+                    <button className="btn btn-ghost btn-sm logout-btn-desktop" onClick={logout}>
+                      <FiLogOut /> Logout
+                    </button>
+                  </div>
                 </>
+              )}
+            </div>
+          </div>
+
+          <div className="mobile-quick-links">
+            <h3 className="section-title">Activity</h3>
+            <div className="quick-links-grid">
+              <Link to="/orders" className="quick-link-item">
+                <div className="link-icon orders"><FiPackage /></div>
+                <div className="link-text">
+                  <span>My Orders</span>
+                  <p>View, track or buy again</p>
+                </div>
+                <FiChevronRight className="link-arrow" />
+              </Link>
+              <Link to="/wishlist" className="quick-link-item">
+                <div className="link-icon wishlist"><FiHeart /></div>
+                <div className="link-text">
+                  <span>My Wishlist</span>
+                  <p>Items you've saved</p>
+                </div>
+                <FiChevronRight className="link-arrow" />
+              </Link>
+            </div>
+
+            <div className="profile-actions-mobile">
+              {user?.role === 'admin' && (
+                <Link to="/admin" className="btn btn-outline btn-block">Admin Panel</Link>
               )}
             </div>
           </div>

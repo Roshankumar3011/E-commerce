@@ -31,19 +31,19 @@
 }
 
 .logo-text {
-  font-family: var(--font-handwriting);
+  font-family: var(--font);
   font-size: 28px;
-  font-weight: 700;
+  font-weight: 900;
   color: var(--text-primary);
-  letter-spacing: 0;
+  letter-spacing: -1px;
 }
 
 .logo-accent {
-  font-family: var(--font-handwriting);
+  font-family: var(--font);
   font-size: 28px;
-  font-weight: 700;
+  font-weight: 900;
   color: var(--primary);
-  margin-left: -2px;
+  margin-left: 2px;
 }
 
 /* Search */
@@ -424,16 +424,35 @@
   .navbar {
     height: 45px;
   }
+  .mobile-search-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: var(--text-primary);
+    cursor: pointer;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    transition: var(--transition);
+  }
+
+  .mobile-search-toggle:active {
+    background: rgba(0,0,0,0.05);
+  }
+
   .navbar-container {
     gap: 8px;
-    padding: 0 12px 0 4px; /* Reduced left padding to pin hamburger to corner */
+    padding: 0 12px 0 12px;
   }
 
   .navbar-logo {
      order: 0;
-     flex: 1;
-     justify-content: center;
-     margin-left: -20px; /* Offset to counter the toggle and maintain visual center */
+     flex: 0 0 auto;
+     justify-content: flex-start;
+     margin-left: 0;
   }
 
   .logo-text, .logo-accent {
@@ -441,22 +460,38 @@
   }
 
   .navbar-search {
-    display: none;
-    order: 4;
-    width: 100%;
+    display: flex;
+    order: 1;
+    flex: 1;
+    position: static;
+    background: none;
+    padding: 0;
+    box-shadow: none;
     max-width: none;
-    margin: 4px 0;
   }
-  
-  .navbar-search.mobile-visible {
-    display: block;
-    position: absolute;
-    top: 45px;
-    left: 0;
-    right: 0;
-    background: white;
-    padding: 8px 12px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+
+  .navbar-search .search-input-wrapper {
+    height: 34px; /* Slightly more room than 32 but still compact */
+    margin: 0 4px; /* Add some side breathing room */
+    background: #f1f5f9;
+    border: none;
+    border-radius: 6px;
+  }
+
+  .navbar-search .search-icon {
+    left: 10px;
+    font-size: 13px;
+    color: #64748b;
+  }
+
+  .navbar-search .search-input-wrapper input {
+    padding: 0 10px;
+    font-size: 13px;
+    background: transparent;
+  }
+
+  .navbar-search .search-btn {
+    display: none; /* Hide the 'Search' text button to save space on mobile */
   }
 
   .navbar-categories {
@@ -507,8 +542,10 @@
   }
 
   .navbar-actions {
-    order: 3;
-    gap: 12px;
+    order: 2;
+    gap: 8px;
+    flex: 0 0 auto;
+    width: auto;
   }
 
   .nav-action-btn {

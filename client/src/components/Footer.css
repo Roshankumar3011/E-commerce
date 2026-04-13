@@ -15,14 +15,11 @@
 }
 
 .footer-brand {
-  font-family: var(--font-handwriting);
+  font-family: var(--font);
   font-size: 32px;
-  font-weight: 700;
+  font-weight: 900;
   margin-bottom: 12px;
-}
-
-.footer-brand span:first-child {
-  color: white;
+  letter-spacing: -1px;
 }
 
 .footer-brand .accent {

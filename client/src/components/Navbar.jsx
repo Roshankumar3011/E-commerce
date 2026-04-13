@@ -119,8 +119,8 @@ const Navbar = () => {
             <img src={settings.logoUrl} alt="Store Logo" style={{ maxHeight: '35px' }} />
           ) : (
             <>
-              <span className="logo-text">BALA</span>
-              <span className="logo-accent">JEE</span>
+              <span className="logo-text">Bala</span>
+              <span className="logo-accent">jee</span>
             </>
           )}
         </Link>
@@ -130,7 +130,6 @@ const Navbar = () => {
         <div className="navbar-search" ref={searchRef}>
           <form onSubmit={handleSearch}>
             <div className="search-input-wrapper">
-              <FiSearch className="search-icon" />
               <input
                 type="text"
                 placeholder="Search for products, brands and more"

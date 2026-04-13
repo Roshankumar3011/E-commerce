@@ -9,7 +9,6 @@ const AdminLayout = ({ children, title }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [showMobileSidebar, setShowMobileSidebar] = useState(false);
 
   const navItems = [
     { path: '/admin', icon: <FiHome />, label: 'Dashboard' },
@@ -21,28 +20,24 @@ const AdminLayout = ({ children, title }) => {
 
   return (
     <div className="admin-layout">
-      {/* Mobile Overlay */}
-      {showMobileSidebar && <div className="admin-sidebar-overlay" onClick={() => setShowMobileSidebar(false)} />}
-
-      <aside className={`admin-sidebar ${showMobileSidebar ? 'show' : ''}`}>
+      <aside className="admin-sidebar">
         <div className="admin-sidebar-header">
           <Link to="/admin" className="admin-logo">
-            <span>BALA</span><span className="accent">JEE</span>
+            <span>Bala</span><span className="accent">jee</span>
           </Link>
-          <button className="admin-sidebar-close" onClick={() => setShowMobileSidebar(false)}><FiX /></button>
         </div>
         <nav className="admin-nav">
           {navItems.map((item) => (
-            <Link key={item.path} to={item.path} className={`admin-nav-item ${location.pathname === item.path ? 'active' : ''}`} onClick={() => setShowMobileSidebar(false)}>
+            <Link key={item.path} to={item.path} className={`admin-nav-item ${location.pathname === item.path ? 'active' : ''}`}>
               {item.icon} {item.label}
             </Link>
           ))}
-          <Link to="/admin/products/add" className="admin-nav-item add-btn" onClick={() => setShowMobileSidebar(false)}>
+          <Link to="/admin/products/add" className="admin-nav-item add-btn">
             <FiPlus /> Add Product
           </Link>
         </nav>
         <div className="admin-sidebar-footer">
-          <Link to="/admin/settings" className="admin-nav-item" onClick={() => setShowMobileSidebar(false)}><FiSettings /> Edit Store</Link>
+          <Link to="/admin/settings" className="admin-nav-item"><FiSettings /> Edit Store</Link>
           <button className="admin-nav-item logout" onClick={() => { logout(); navigate('/'); }}>
             <FiLogOut /> Logout
           </button>
@@ -50,7 +45,6 @@ const AdminLayout = ({ children, title }) => {
       </aside>
       <div className="admin-content">
         <header className="admin-topbar">
-          <button className="admin-mobile-toggle" onClick={() => setShowMobileSidebar(true)}><FiGrid /></button>
           <h1>{title}</h1>
           <div className="admin-user"><FiUser /> {user?.name}</div>
         </header>

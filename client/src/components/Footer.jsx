@@ -12,13 +12,13 @@ const Footer = () => {
         <div className="container">
           <div className="footer-grid">
             <div className="footer-col">
-              <h3 className="footer-brand">
+              <Link to="/" className="footer-brand">
                 {settings?.logoUrl ? (
                    <img src={settings.logoUrl} alt="Store Logo" style={{ maxHeight: '35px' }} />
                 ) : (
-                   <><span className="logo-text">BALA</span><span className="accent">JEE</span></>
+                   <><span className="logo-text">Bala</span><span className="accent">jee</span></>
                 )}
-              </h3>
+              </Link>
               <p>India's leading online fashion store. Discover the latest trends in clothing for Men, Women & Kids.</p>
               <div className="footer-social">
                 {settings?.socialLinks?.facebook && <a href={settings.socialLinks.facebook} className="social-link" target="_blank" rel="noreferrer">f</a>}

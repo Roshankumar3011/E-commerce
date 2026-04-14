@@ -177,4 +177,82 @@ router.put('/change-password', protect, async (req, res) => {
   }
 });
 
+// Firebase Login & Registration logic
+router.post('/firebase-login', async (req, res) => {
+  try {
+    const { token } = req.body;
+    let decodedToken;
+    let uid, email, phone, name;
+
+    if (!process.env.FIREBASE_PROJECT_ID) {
+      // Dummy Mode: Parse from raw base64 or just use test values
+      // Standard JWT has 3 parts. Let's just mock it if it's "dummy_token"
+      decodedToken = {
+        uid: 'dummy_' + Date.now(),
+        phone_number: req.body.phone || undefined,
+        email: req.body.email || undefined,
+        name: req.body.name || 'Test User'
+      };
+    } else {
+      const { admin } = require('../config/firebase-admin');
+      if (!admin) return res.status(500).json({ success: false, message: 'Firebase not configured properly' });
+      decodedToken = await admin.auth().verifyIdToken(token);
+    }
+    
+    uid = decodedToken.uid;
+    email = decodedToken.email;
+    phone = decodedToken.phone_number;
+    name = decodedToken.name || (email ? email.split('@')[0] : 'User');
+
+    // Find User by Firebase UID first
+    let user = await User.findOne({ firebaseUid: uid }).select('+password');
+    
+    // If not found, attempt to link via email or phone
+    if (!user) {
+      if (email) user = await User.findOne({ email }).select('+password');
+      else if (phone) user = await User.findOne({ phone }).select('+password');
+      
+      if (user) {
+        // Link account
+        user.firebaseUid = uid;
+        // Optionally update missing info
+        if (!user.phone && phone) user.phone = phone;
+        await user.save();
+      } else {
+        // Create new user
+        user = await User.create({
+          name,
+          email,
+          phone,
+          firebaseUid: uid,
+          // Generate dummy password to satisfy any legacy hooks, though we made it optional
+          password: 'fb_' + Math.random().toString(36).slice(-8)
+        });
+      }
+    }
+
+    if (!user.isActive) {
+      return res.status(403).json({ success: false, message: 'Account has been deactivated' });
+    }
+
+    // Generate App Token using existing logic
+    const appToken = user.generateToken();
+
+    res.json({
+      success: true,
+      token: appToken,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        phone: user.phone,
+        addresses: user.addresses,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 module.exports = router;

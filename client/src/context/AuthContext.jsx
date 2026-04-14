@@ -64,8 +64,18 @@ export const AuthProvider = ({ children }) => {
     toast.success('Profile updated!');
   };
 
+  const firebaseLogin = async (firebaseToken) => {
+    const res = await API.post('/auth/firebase-login', { token: firebaseToken });
+    const { token: appToken, user: userData } = res.data;
+    localStorage.setItem('token', appToken);
+    localStorage.setItem('user', JSON.stringify(userData));
+    setUser(userData);
+    toast.success(`Welcome back, ${userData.name}!`);
+    return userData;
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, updateProfile, setUser }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, updateProfile, setUser, firebaseLogin }}>
       {children}
     </AuthContext.Provider>
   );

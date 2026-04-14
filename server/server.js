@@ -3,6 +3,10 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
+const { initFirebaseAdmin } = require('./config/firebase-admin');
+
+// Initialize Firebase
+initFirebaseAdmin();
 
 const authRoutes = require('./routes/auth');
 const productRoutes = require('./routes/products');

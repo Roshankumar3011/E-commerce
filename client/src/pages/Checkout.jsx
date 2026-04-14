@@ -34,17 +34,13 @@ const Checkout = () => {
       const res = await API.post('/orders', { shippingAddress: address, paymentMethod });
       const order = res.data.order;
 
-      if (paymentMethod === 'Razorpay') {
-        // Create payment order
+      if (paymentMethod === 'PhonePe') {
         const payRes = await API.post('/payment/create-order', { amount: total, orderId: order._id });
-        // Simulate payment verification
-        await API.post('/payment/verify', {
-          razorpay_order_id: payRes.data.order.id,
-          razorpay_payment_id: 'pay_simulated_' + Date.now(),
-          razorpay_signature: 'sig_simulated',
-          orderId: order._id,
-        });
-        toast.success('Payment successful!');
+        if (payRes.data.url) {
+           // Redirect to PhonePe gateway (or mock success URL)
+           window.location.href = payRes.data.url;
+           return;
+        }
       }
 
       toast.success('Order placed successfully! 🎉');
@@ -98,7 +94,7 @@ const Checkout = () => {
               <div className="payment-options">
                 {[
                   { value: 'COD', label: 'Cash on Delivery', icon: '💵' },
-                  { value: 'Razorpay', label: 'Online Payment (Razorpay)', icon: '💳' },
+                  { value: 'PhonePe', label: 'Online Payment (PhonePe)', icon: '💳' },
                   { value: 'Dummy', label: 'Dummy Payment (Test)', icon: '🧪' },
                 ].map((opt) => (
                   <label key={opt.value} className={`payment-option ${paymentMethod === opt.value ? 'active' : ''}`}>

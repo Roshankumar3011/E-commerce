@@ -1,7 +1,9 @@
 import axios from 'axios';
 
 const API = axios.create({
-  baseURL: 'http://localhost:5000/api',
+  baseURL: import.meta.env.MODE === 'production'
+    ? 'https://e-commerce-wph8.onrender.com/api'
+    : 'http://localhost:5000/api',
   timeout: 15000,
 });
 

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { FiMapPin, FiCreditCard, FiTruck, FiSmartphone, FiBox } from 'react-icons/fi';
 import API from '../utils/api';
 import toast from 'react-hot-toast';
 import './Checkout.css';
@@ -43,7 +44,7 @@ const Checkout = () => {
         }
       }
 
-      toast.success('Order placed successfully! 🎉');
+      toast.success('Order placed successfully!');
       navigate(`/order/${order._id}`);
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to place order');
@@ -66,7 +67,7 @@ const Checkout = () => {
           <div className="checkout-forms">
             {/* Delivery Address */}
             <div className="checkout-section card">
-              <h2>📍 Delivery Address</h2>
+              <h2><FiMapPin size={16} /> Delivery Address</h2>
               {user?.addresses?.length > 0 && (
                 <div className="saved-addresses">
                   <p className="saved-label">Saved Addresses:</p>
@@ -90,12 +91,12 @@ const Checkout = () => {
 
             {/* Payment Method */}
             <div className="checkout-section card">
-              <h2>💳 Payment Method</h2>
+              <h2><FiCreditCard size={16} /> Payment Method</h2>
               <div className="payment-options">
                 {[
-                  { value: 'COD', label: 'Cash on Delivery', icon: '💵' },
-                  { value: 'PhonePe', label: 'Online Payment (PhonePe)', icon: '💳' },
-                  { value: 'Dummy', label: 'Dummy Payment (Test)', icon: '🧪' },
+                  { value: 'COD', label: 'Cash on Delivery', icon: <FiTruck size={15} /> },
+                  { value: 'PhonePe', label: 'Online Payment (PhonePe)', icon: <FiSmartphone size={15} /> },
+                  { value: 'Dummy', label: 'Dummy Payment (Test)', icon: <FiBox size={15} /> },
                 ].map((opt) => (
                   <label key={opt.value} className={`payment-option ${paymentMethod === opt.value ? 'active' : ''}`}>
                     <input type="radio" name="payment" value={opt.value} checked={paymentMethod === opt.value} onChange={(e) => setPaymentMethod(e.target.value)} />

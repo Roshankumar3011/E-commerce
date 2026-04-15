@@ -41,7 +41,7 @@ const Orders = () => {
       <div className="container">
         {orders.length === 0 ? (
           <div className="empty-state">
-            <div className="empty-icon">📦</div>
+            <div className="empty-icon"><FiPackage size={48} opacity={0.25} /></div>
             <h3>No orders yet</h3>
             <p>Start shopping to see your orders here</p>
             <Link to="/products" className="btn btn-primary">Start Shopping</Link>

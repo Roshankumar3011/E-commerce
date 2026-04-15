@@ -7,64 +7,35 @@ import Loader from '../components/Loader';
 import { useSettings } from '../context/SettingsContext';
 import './Home.css';
 
-// Local Sub-component with Vertical Sidebar Filters (Reference Based)
-const ProductSection = ({ title, viewAllLink, collections, selectedTag, onTagChange, products, loading, scrollRef, onScroll }) => {
-  const [showMobileFilters, setShowMobileFilters] = useState(false);
-
+// Local Sub-component with themed section headers
+const ProductSection = ({ title, viewAllLink, collections, selectedTag, onTagChange, products, loading, scrollRef, onScroll, theme }) => {
   return (
-    <section className="section">
+    <section className={`section theme-${theme}`}>
       <div className="container">
-        <div className="section-header">
+        {/* Line 1: Title only */}
+        <div className="section-title-row">
           <h2 className="section-title">{title}</h2>
-          <button 
-            className="mobile-filter-toggle" 
-            onClick={() => setShowMobileFilters(true)}
-          >
-            <FiFilter /> Categories
-          </button>
+        </div>
+
+        {/* Line 2: Pills + View All */}
+        <div className="section-pills-row">
+          <div className="home-category-pills">
+            {collections.map((col) => (
+              <button
+                key={col.name}
+                className={`home-pill ${selectedTag === col.value ? 'active' : ''}`}
+                onClick={() => onTagChange(col.value)}
+              >
+                {col.name}
+              </button>
+            ))}
+          </div>
           <Link to={viewAllLink} className="view-all">
             View All <FiArrowRight />
           </Link>
         </div>
 
-        {/* Mobile Overlay */}
-        {showMobileFilters && (
-          <div className="sidebar-overlay" onClick={() => setShowMobileFilters(false)}></div>
-        )}
-
-        <aside className={`section-sidebar ${showMobileFilters ? 'show' : ''}`}>
-          <div className="sidebar-header">
-            <span className="sidebar-title">Categories</span>
-            <button 
-              className="close-sidebar-btn" 
-              onClick={() => setShowMobileFilters(false)}
-            >
-              <FiX />
-            </button>
-          </div>
-
-          <div className="sidebar-group">
-            <div className="filter-list-vertical">
-              {collections.map((col) => (
-                <button
-                  key={col.name}
-                  className={`filter-item-v ${selectedTag === col.value ? 'active' : ''}`}
-                  onClick={() => {
-                    onTagChange(col.value);
-                    setShowMobileFilters(false);
-                  }}
-                >
-                  <span className="radio-circle"></span>
-                  <span className="filter-name">{col.name}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </aside>
-
-        {/* Section body with arrows at this level for consistent edge placement */}
         <div className="section-body">
-          {/* Left arrow at SECTION level so it's always at true screen edge */}
           <button className="scroll-nav-btn prev" onClick={() => onScroll('left')} aria-label="Previous">
             <FiChevronLeft />
           </button>
@@ -83,7 +54,6 @@ const ProductSection = ({ title, viewAllLink, collections, selectedTag, onTagCha
             </div>
           </div>
 
-          {/* Right arrow at SECTION level so it's always at true screen edge */}
           <button className="scroll-nav-btn next" onClick={() => onScroll('right')} aria-label="Next">
             <FiChevronRight />
           </button>
@@ -208,6 +178,7 @@ const Home = () => {
       <ProductSection
         title="Top Deals"
         viewAllLink="/products"
+        theme="gold"
         collections={dealCollections}
         selectedTag={selectedDealsTag}
         onTagChange={setSelectedDealsTag}
@@ -220,6 +191,7 @@ const Home = () => {
       <ProductSection
         title="Men's Collection"
         viewAllLink="/products/Men"
+        theme="blue"
         collections={menCollections}
         selectedTag={selectedMenTag}
         onTagChange={setSelectedMenTag}
@@ -232,6 +204,7 @@ const Home = () => {
       <ProductSection
         title="Women's Collection"
         viewAllLink="/products/Women"
+        theme="pink"
         collections={womenCollections}
         selectedTag={selectedWomenTag}
         onTagChange={setSelectedWomenTag}
@@ -244,6 +217,7 @@ const Home = () => {
       <ProductSection
         title="Kids' Collection"
         viewAllLink="/products/Kids"
+        theme="green"
         collections={kidsCollections}
         selectedTag={selectedKidsTag}
         onTagChange={setSelectedKidsTag}

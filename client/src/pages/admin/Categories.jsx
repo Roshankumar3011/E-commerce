@@ -220,13 +220,9 @@ const AdminCategories = () => {
         </button>
       </div>
 
-      {/* Quick gender groups summary */}
-      <div style={{ display: 'flex', gap: 12, marginBottom: 24 }}>
+      {/* Quick gender groups summary - hidden on mobile */}
+      <div className="gender-summary-grid desktop-only" style={{ display: 'flex', gap: 12, marginBottom: 24 }}>
         {GENDER_OPTIONS.map(g => {
-          const root = genderRoot[g];
-          const count = root
-            ? categories.filter(c => getCategoryGender(c) === g && c.name !== g).length
-            : 0;
           return (
             <div key={g} style={{
               flex: 1, padding: '14px 18px', borderRadius: 12,
@@ -234,12 +230,7 @@ const AdminCategories = () => {
               display: 'flex', alignItems: 'center', gap: 10,
             }}>
               <FiUsers style={{ color: GENDER_COLORS[g].text, fontSize: 20 }} />
-              <div>
-                <div style={{ fontWeight: 700, color: GENDER_COLORS[g].text }}>{g}</div>
-                <div style={{ fontSize: 12, color: GENDER_COLORS[g].text, opacity: 0.8 }}>
-                  {count} sub-categories
-                </div>
-              </div>
+              <div style={{ fontWeight: 700, color: GENDER_COLORS[g].text }}>{g}</div>
             </div>
           );
         })}
@@ -250,56 +241,68 @@ const AdminCategories = () => {
         {loading ? (
           <div className="loading-container"><div className="spinner" /></div>
         ) : (
-          <div className="admin-table-wrap">
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>Category Name</th>
-                  <th>Gender</th>
-                  <th>Parent</th>
-                  <th>Description</th>
-                  <th>Slug</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sortedCategories.map(cat => {
-                  const g = getCategoryGender(cat);
-                  const isRoot = GENDER_OPTIONS.includes(cat.name) && !cat.parent;
-                  return (
-                    <tr key={cat._id} style={isRoot ? { background: 'var(--bg-secondary)' } : {}}>
-                      <td>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          {isRoot && <FiTag style={{ color: 'var(--primary)', fontSize: 14 }} />}
-                          <strong style={{ paddingLeft: isRoot ? 0 : 20, color: isRoot ? 'var(--primary)' : 'inherit' }}>
-                            {cat.name}
-                          </strong>
-                        </div>
-                      </td>
-                      <td>
-                        {g ? <Badge label={g} gender={g} /> : <span style={{ color: 'var(--text-muted)' }}>—</span>}
-                      </td>
-                      <td>
-                        {cat.parent
-                          ? <Badge label={cat.parent.name || 'Parent'} />
-                          : <span style={{ color: 'var(--text-muted)', fontSize: 13 }}>Root</span>}
-                      </td>
-                      <td style={{ color: 'var(--text-secondary)', fontSize: 13, maxWidth: 200 }}>
-                        {cat.description || '—'}
-                      </td>
-                      <td><code style={{ fontSize: 12 }}>{cat.slug}</code></td>
-                      <td>
-                        <div className="admin-row-actions">
-                          <button className="btn-icon" onClick={() => openEdit(cat)} title="Edit"><FiEdit2 /></button>
-                          <button className="btn-icon delete" onClick={() => handleDelete(cat._id)} title="Delete"><FiTrash2 /></button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+          <>
+            {/* Desktop table */}
+            <div className="admin-table-wrap desktop-only">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Category Name</th>
+                    <th>Gender</th>
+                    <th>Parent</th>
+                    <th>Description</th>
+                    <th>Slug</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sortedCategories.map(cat => {
+                    const g = getCategoryGender(cat);
+                    const isRoot = GENDER_OPTIONS.includes(cat.name) && !cat.parent;
+                    return (
+                      <tr key={cat._id} style={isRoot ? { background: 'var(--bg-secondary)' } : {}}>
+                        <td>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            {isRoot && <FiTag style={{ color: 'var(--primary)', fontSize: 14 }} />}
+                            <strong style={{ paddingLeft: isRoot ? 0 : 20, color: isRoot ? 'var(--primary)' : 'inherit' }}>{cat.name}</strong>
+                          </div>
+                        </td>
+                        <td>{g ? <Badge label={g} gender={g} /> : <span style={{ color: 'var(--text-muted)' }}>—</span>}</td>
+                        <td>{cat.parent ? <Badge label={cat.parent.name || 'Parent'} /> : <span style={{ color: 'var(--text-muted)', fontSize: 13 }}>Root</span>}</td>
+                        <td style={{ color: 'var(--text-secondary)', fontSize: 13, maxWidth: 200 }}>{cat.description || '—'}</td>
+                        <td><code style={{ fontSize: 12 }}>{cat.slug}</code></td>
+                        <td>
+                          <div className="admin-row-actions">
+                            <button className="btn-icon" onClick={() => openEdit(cat)} title="Edit"><FiEdit2 /></button>
+                            <button className="btn-icon delete" onClick={() => handleDelete(cat._id)} title="Delete"><FiTrash2 /></button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile cards - Compact Row version */}
+            <div className="mobile-cards mobile-only">
+              {sortedCategories.length === 0 && <p className="empty-msg">No categories yet.</p>}
+              {sortedCategories.map(cat => {
+                const isRoot = GENDER_OPTIONS.includes(cat.name) && !cat.parent;
+                return (
+                  <div key={cat._id} className="m-card-row" style={isRoot ? { borderLeft: '3px solid var(--primary)' } : {}}>
+                    <div className="m-card-row-title">
+                      {isRoot && '📁 '}{cat.name}
+                    </div>
+                    <div className="m-card-row-actions">
+                      <button className="m-action-btn edit" onClick={() => openEdit(cat)}><FiEdit2 /></button>
+                      <button className="m-action-btn delete" onClick={() => handleDelete(cat._id)}><FiTrash2 /></button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </>
         )}
       </div>
 

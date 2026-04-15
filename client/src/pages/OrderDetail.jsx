@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { FiCheck, FiTruck, FiPackage, FiMapPin } from 'react-icons/fi';
+import { FiCheck, FiTruck, FiPackage, FiMapPin, FiXCircle } from 'react-icons/fi';
 import API from '../utils/api';
 import { getProductImage } from '../utils/assets';
 import toast from 'react-hot-toast';
@@ -71,7 +71,7 @@ const OrderDetail = () => {
           </div>
         ) : (
           <div className="cancelled-banner card">
-            <span>❌</span> This order has been cancelled
+            <FiXCircle style={{ color: '#ef4444' }} /> This order has been cancelled
           </div>
         )}
 

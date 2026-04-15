@@ -271,33 +271,71 @@
   color: var(--text-secondary);
 }
 
+
 @media (max-width: 480px) {
+  /* 1. Hide Quick Add on Phone View */
+  .img-overlay {
+    display: none !important;
+  }
+
   .product-info {
-    padding: 5px;
+    padding: 4px 6px;
     gap: 2px;
   }
-  .current-price {
-    font-size: 13px;
-  }
-  .original-price {
-    font-size: 10px;
-  }
+
+  /* 2. Scale font sizes for 3-column layout */
   .product-name {
-    font-size: 11px;
-    min-height: 24px;
+    font-size: 9.5px;
+    letter-spacing: -0.1px;
+    line-height: 1.1;
+    min-height: 22px;
+    margin-bottom: 2px;
+    font-weight: 500;
   }
-  .discount-text {
+
+  .current-price {
     font-size: 11px;
+    font-weight: 800;
   }
-  .rating-badge {
-    padding: 2px 5px;
-    font-size: 11px;
-  }
-  .discount-badge {
+
+  .original-price {
     font-size: 8px;
-    padding: 2px 6px;
-    top: 5px;
-    left: 5px;
-    border-radius: 5px;
+    margin-left: -2px;
+  }
+
+  .product-rating {
+    font-size: 9px;
+    padding: 1px 4px;
+    gap: 2px;
+  }
+
+  .star-icon {
+    font-size: 8px;
+  }
+
+  /* 3. Smaller badges */
+  .discount-badge {
+    font-size: 7px;
+    padding: 2px 5px;
+    top: 6px;
+    left: 6px;
+    border-radius: 4px;
+    font-weight: 900;
+  }
+
+  .wishlist-btn {
+    width: 22px;
+    height: 22px;
+    font-size: 11px;
+    top: 6px;
+    right: 6px;
+    /* Always show on mobile but smaller since hover doesn't exist */
+    transform: scale(1);
+    background: rgba(255,255,255,0.9);
+  }
+
+  .low-stock-badge {
+    font-size: 8px;
+    padding: 3px;
   }
 }

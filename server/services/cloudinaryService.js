@@ -1,12 +1,21 @@
 const cloudinary = require('cloudinary').v2;
 const { Readable } = require('stream');
 
-// Configure Cloudinary
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+// Configure Cloudinary — called lazily to ensure env vars are loaded
+const getCloudinary = () => {
+  const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+  const apiKey = process.env.CLOUDINARY_API_KEY;
+  const apiSecret = process.env.CLOUDINARY_API_SECRET;
+
+  if (!cloudName || !apiKey || !apiSecret) {
+    throw new Error(
+      'Cloudinary is not configured. Set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET in your server .env file.'
+    );
+  }
+
+  cloudinary.config({ cloud_name: cloudName, api_key: apiKey, api_secret: apiSecret });
+  return cloudinary;
+};
 
 /**
  * Uploads a file buffer to Cloudinary
@@ -15,10 +24,18 @@ cloudinary.config({
  */
 const uploadImage = (file) => {
   return new Promise((resolve, reject) => {
-    const uploadStream = cloudinary.uploader.upload_stream(
+    let cloud;
+    try {
+      cloud = getCloudinary();
+    } catch (err) {
+      return reject(err);
+    }
+
+    const uploadStream = cloud.uploader.upload_stream(
       {
-        folder: 'flipstyle/products',
+        folder: 'balajee/products',
         resource_type: 'auto',
+        transformation: [{ quality: 'auto', fetch_format: 'auto' }],
       },
       (error, result) => {
         if (error) {
@@ -37,6 +54,4 @@ const uploadImage = (file) => {
   });
 };
 
-module.exports = {
-  uploadImage,
-};
+module.exports = { uploadImage };

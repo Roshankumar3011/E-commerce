@@ -16,7 +16,7 @@ const Footer = () => {
                 {settings?.logoUrl ? (
                    <img src={settings.logoUrl} alt="Store Logo" style={{ maxHeight: '35px' }} />
                 ) : (
-                   <><span className="logo-text">Bala</span><span className="accent">jee</span></>
+                   <><span className="logo-text">Bala</span><span className="accent">Jee</span></>
                 )}
               </Link>
               <p>India's leading online fashion store. Discover the latest trends in clothing for Men, Women & Kids.</p>

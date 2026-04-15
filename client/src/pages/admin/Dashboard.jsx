@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { FiHome, FiPackage, FiShoppingBag, FiUsers, FiLogOut, FiPlus, FiTrendingUp, FiAlertTriangle, FiGrid, FiUser, FiSettings, FiX } from 'react-icons/fi';
+import { FiHome, FiPackage, FiShoppingBag, FiUsers, FiLogOut, FiPlus, FiTrendingUp, FiAlertTriangle, FiGrid, FiUser, FiSettings, FiMenu, FiX } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
 import API from '../../utils/api';
 import './Admin.css';
@@ -9,6 +9,12 @@ const AdminLayout = ({ children, title }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Close sidebar on route change
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [location.pathname]);
 
   const navItems = [
     { path: '/admin', icon: <FiHome />, label: 'Dashboard' },
@@ -20,15 +26,27 @@ const AdminLayout = ({ children, title }) => {
 
   return (
     <div className="admin-layout">
-      <aside className="admin-sidebar">
+      {/* Mobile overlay */}
+      {sidebarOpen && (
+        <div className="admin-sidebar-overlay" onClick={() => setSidebarOpen(false)} />
+      )}
+
+      <aside className={`admin-sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div className="admin-sidebar-header">
           <Link to="/admin" className="admin-logo">
             <span>Bala</span><span className="accent">jee</span>
           </Link>
+          <button className="admin-sidebar-close" onClick={() => setSidebarOpen(false)}>
+            <FiX />
+          </button>
         </div>
         <nav className="admin-nav">
           {navItems.map((item) => (
-            <Link key={item.path} to={item.path} className={`admin-nav-item ${location.pathname === item.path ? 'active' : ''}`}>
+            <Link
+              key={item.path}
+              to={item.path}
+              className={`admin-nav-item ${location.pathname === item.path ? 'active' : ''}`}
+            >
               {item.icon} {item.label}
             </Link>
           ))}
@@ -43,10 +61,16 @@ const AdminLayout = ({ children, title }) => {
           </button>
         </div>
       </aside>
+
       <div className="admin-content">
         <header className="admin-topbar">
-          <h1>{title}</h1>
-          <div className="admin-user"><FiUser /> {user?.name}</div>
+          <div className="admin-topbar-left">
+            <button className="admin-menu-toggle" onClick={() => setSidebarOpen(true)}>
+              <FiMenu />
+            </button>
+            <h1>{title}</h1>
+          </div>
+          <div className="admin-user"><FiUser /> <span>{user?.name}</span></div>
         </header>
         <div className="admin-body">{children}</div>
       </div>
@@ -116,33 +140,42 @@ const Dashboard = () => {
       {/* Recent Orders */}
       <div className="admin-section animate-slideUp">
         <h3>Recent Orders</h3>
-        <div className="admin-table-wrap">
+
+        {/* Desktop */}
+        <div className="admin-table-wrap desktop-only">
           <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Order #</th>
-                <th>Customer</th>
-                <th>Amount</th>
-                <th>Status</th>
-                <th>Date</th>
-              </tr>
-            </thead>
+            <thead><tr><th>Order #</th><th>Customer</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
             <tbody>
               {stats?.recentOrders?.map((order) => (
                 <tr key={order._id}>
                   <td><strong>{order.orderNumber}</strong></td>
                   <td>{order.user?.name || 'N/A'}</td>
                   <td>₹{order.totalAmount?.toLocaleString()}</td>
-                  <td><span className={`badge ${
-                    order.orderStatus === 'Delivered' ? 'badge-success' :
-                    order.orderStatus === 'Cancelled' ? 'badge-danger' :
-                    order.orderStatus === 'Shipped' ? 'badge-primary' : 'badge-warning'
-                  }`}>{order.orderStatus}</span></td>
+                  <td><span className={`badge ${order.orderStatus === 'Delivered' ? 'badge-success' : order.orderStatus === 'Cancelled' ? 'badge-danger' : order.orderStatus === 'Shipped' ? 'badge-primary' : 'badge-warning'}`}>{order.orderStatus}</span></td>
                   <td>{new Date(order.createdAt).toLocaleDateString()}</td>
                 </tr>
               ))}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile cards */}
+        <div className="mobile-cards mobile-only">
+          {stats?.recentOrders?.map((order) => (
+            <div key={order._id} className="m-card">
+              <div className="m-card-header">
+                <div className="m-card-info">
+                  <div className="m-card-title">#{order.orderNumber}</div>
+                  <div className="m-card-sub">{order.user?.name || 'N/A'}</div>
+                </div>
+                <div className="m-card-price">₹{order.totalAmount?.toLocaleString()}</div>
+              </div>
+              <div className="m-card-footer">
+                <span className={`badge ${order.orderStatus === 'Delivered' ? 'badge-success' : order.orderStatus === 'Cancelled' ? 'badge-danger' : order.orderStatus === 'Shipped' ? 'badge-primary' : 'badge-warning'}`}>{order.orderStatus}</span>
+                <span className="m-card-date">{new Date(order.createdAt).toLocaleDateString()}</span>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </AdminLayout>

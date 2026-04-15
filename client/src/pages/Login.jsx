@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FiMail, FiLock, FiEye, FiEyeOff, FiPhone } from 'react-icons/fi';
+import { FiMail, FiLock, FiEye, FiEyeOff, FiPhone, FiUser, FiKey } from 'react-icons/fi';
 import { FcGoogle } from 'react-icons/fc';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
@@ -159,10 +159,10 @@ const Login = () => {
               </div>
               <div className="demo-logins stagger-in stagger-delay-2" style={{margin: '10px 0'}}>
                 <button type="button" className="demo-btn" onClick={() => { setEmail('john@example.com'); setPassword('user123'); }}>
-                  👤 Demo User
+                  <FiUser size={12} /> Demo User
                 </button>
                 <button type="button" className="demo-btn" onClick={() => { setEmail('admin@flipkart.com'); setPassword('admin123'); }}>
-                  🔑 Demo Admin
+                  <FiKey size={12} /> Demo Admin
                 </button>
               </div>
               <button type="submit" className="btn btn-primary btn-lg btn-block stagger-in stagger-delay-3" disabled={loading}>

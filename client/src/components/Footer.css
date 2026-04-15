@@ -15,11 +15,17 @@
 }
 
 .footer-brand {
-  font-family: var(--font);
-  font-size: 32px;
+  font-family: var(--font-display);
+  font-size: 28px;
   font-weight: 900;
   margin-bottom: 12px;
-  letter-spacing: -1px;
+  letter-spacing: -0.8px;
+  display: flex;
+  align-items: center;
+}
+
+.footer-brand .logo-text {
+  color: white;
 }
 
 .footer-brand .accent {

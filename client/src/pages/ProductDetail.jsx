@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { FiShoppingCart, FiHeart, FiStar, FiTruck, FiRefreshCw, FiShield, FiChevronRight } from 'react-icons/fi';
+import { FiShoppingCart, FiHeart, FiStar, FiTruck, FiRefreshCw, FiShield, FiChevronRight, FiX, FiChevronLeft, FiZap } from 'react-icons/fi';
 import API from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
@@ -85,6 +85,39 @@ const ProductDetail = () => {
     }
   };
 
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [touchStartX, setTouchStartX] = useState(0);
+
+  const handleNextImage = () => {
+    setSelectedImage((prev) => (prev + 1) % product.images.length);
+  };
+
+  const handlePrevImage = () => {
+    setSelectedImage((prev) => (prev - 1 + product.images.length) % product.images.length);
+  };
+
+  // Keyboard support for Lightbox
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (!isLightboxOpen) return;
+      if (e.key === 'Escape') setIsLightboxOpen(false);
+      if (e.key === 'ArrowRight') handleNextImage();
+      if (e.key === 'ArrowLeft') handlePrevImage();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isLightboxOpen]);
+
+  // Swipe detection for mobile
+  const handleTouchStart = (e) => setTouchStartX(e.touches[0].clientX);
+  const handleTouchEnd = (e) => {
+    const deltaX = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(deltaX) > 50) {
+      if (deltaX > 0) handlePrevImage();
+      else handleNextImage();
+    }
+  };
+
   const [zoomActive, setZoomActive] = useState(false);
   const [zoomPos, setZoomPos] = useState({ x: 0, y: 0 });
 
@@ -161,6 +194,8 @@ const ProductDetail = () => {
               onMouseEnter={() => setZoomActive(true)}
               onMouseLeave={() => setZoomActive(false)}
               onMouseMove={handleMouseMove}
+              onClick={() => setIsLightboxOpen(true)}
+              title="Click to view full image"
             >
               <img
                 src={getProductImage(product.images?.[selectedImage], 'https://via.placeholder.com/500')}
@@ -241,7 +276,7 @@ const ProductDetail = () => {
                 <FiShoppingCart /> Add to Cart
               </button>
               <button className="btn btn-secondary btn-lg" onClick={handleBuyNow}>
-                ⚡ Buy Now
+                <FiZap /> Buy Now
               </button>
             </div>
 
@@ -327,7 +362,7 @@ const ProductDetail = () => {
                       className={`star-btn ${reviewForm.rating >= star ? 'active' : ''}`}
                       onClick={() => setReviewForm({ ...reviewForm, rating: star })}
                     >
-                      ★
+                      <FiStar />
                     </button>
                   ))}
                 </div>
@@ -360,7 +395,7 @@ const ProductDetail = () => {
               reviews.map((review) => (
                 <div key={review._id} className="review-card">
                   <div className="review-top">
-                    <span className="review-rating-badge">{review.rating} ★</span>
+                    <span className="review-rating-badge">{review.rating} <FiStar size={10} /></span>
                     <strong>{review.title}</strong>
                   </div>
                   <p>{review.comment}</p>
@@ -374,6 +409,39 @@ const ProductDetail = () => {
           </div>
         </div>
       </div>
+
+      {/* ── Fullscreen Lightbox ── */}
+      {isLightboxOpen && (
+        <div className="lightbox-overlay active" onClick={() => setIsLightboxOpen(false)}>
+          <button className="lightbox-close" onClick={() => setIsLightboxOpen(false)}>
+            <FiX />
+          </button>
+          
+          <button className="lightbox-nav prev" onClick={(e) => { e.stopPropagation(); handlePrevImage(); }}>
+            <FiChevronLeft />
+          </button>
+          
+          <div 
+            className="lightbox-content" 
+            onClick={(e) => e.stopPropagation()}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+          >
+            <img 
+              src={getProductImage(product.images?.[selectedImage])} 
+              alt={product.name}
+              className="lightbox-img" 
+            />
+            <div className="lightbox-counter">
+              {selectedImage + 1} / {product.images.length}
+            </div>
+          </div>
+          
+          <button className="lightbox-nav next" onClick={(e) => { e.stopPropagation(); handleNextImage(); }}>
+            <FiChevronRight />
+          </button>
+        </div>
+      )}
     </div>
   );
 };

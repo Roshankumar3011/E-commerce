@@ -31,19 +31,18 @@
 }
 
 .logo-text {
-  font-family: var(--font);
-  font-size: 28px;
+  font-family: var(--font-display);
+  font-size: 24px;
   font-weight: 900;
   color: var(--text-primary);
-  letter-spacing: -1px;
+  letter-spacing: -0.8px;
 }
 
 .logo-accent {
-  font-family: var(--font);
-  font-size: 28px;
+  font-family: var(--font-display);
+  font-size: 24px;
   font-weight: 900;
   color: var(--primary);
-  margin-left: 2px;
 }
 
 /* Search */

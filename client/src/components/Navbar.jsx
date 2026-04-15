@@ -120,7 +120,7 @@ const Navbar = () => {
           ) : (
             <>
               <span className="logo-text">Bala</span>
-              <span className="logo-accent">jee</span>
+              <span className="logo-accent">Jee</span>
             </>
           )}
         </Link>

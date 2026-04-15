@@ -99,15 +99,7 @@
 }
 
 .detail-discount-badge {
-  position: absolute;
-  top: 16px;
-  left: 16px;
-  background: linear-gradient(135deg, #e53935, #ff5252);
-  color: white;
-  padding: 6px 14px;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 700;
+  display: none;
 }
 
 /* Product Info */
@@ -465,39 +457,116 @@
 @media (max-width: 768px) {
   .product-detail-page {
     padding-top: 45px;
-  }
-  .detail-layout {
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
+    padding-bottom: 80px; /* Space for bottom tab bar */
   }
 
+  /* Stack layout: image on top, info below */
+  .detail-layout {
+    grid-template-columns: 1fr; /* Full-width single column */
+    gap: 0;
+  }
+
+  /* Gallery: horizontal thumbnails below main image */
   .detail-gallery {
     position: static;
-    flex-direction: row;
+    flex-direction: column-reverse; /* Main image on top, thumbs below */
+    gap: 8px;
   }
 
   .gallery-thumbnails {
-    flex-direction: column;
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 8px;
+    padding-bottom: 4px;
   }
-  
+
+  .thumb {
+    width: 56px;
+    height: 70px;
+    flex-shrink: 0;
+  }
+
+  .gallery-main {
+    width: 100%;
+  }
+
   .gallery-main img {
-    height: 250px;
+    height: 320px;
+    border-radius: var(--radius-md);
+  }
+
+  /* Product info */
+  .detail-info {
+    gap: 12px;
+    padding-top: 12px;
+  }
+
+  .detail-name {
+    font-size: 16px;
+    font-weight: 800;
   }
 
   .detail-price {
-    font-size: 18px;
+    font-size: 22px;
   }
 
-  .detail-actions {
-    flex-direction: row;
-    gap: 8px;
+  .detail-original,
+  .detail-discount {
+    font-size: 13px;
   }
-  
-  .detail-name {
+
+  /* Size buttons: larger for touch */
+  .size-btn-detail {
+    min-width: 48px;
+    height: 48px;
     font-size: 14px;
   }
 
+  /* Action buttons: full-width stacked */
+  .detail-actions {
+    flex-direction: column;
+    gap: 10px;
+    position: sticky;
+    bottom: 70px; /* Above the mobile tab bar */
+    background: white;
+    padding: 12px 0;
+    border-top: 1px solid var(--border-light);
+    z-index: 50;
+    margin: 0 -12px;
+    padding: 12px;
+  }
+
+  .detail-actions .btn {
+    font-size: 15px;
+    padding: 14px;
+  }
+
+  /* Delivery strip: wrap to 2 cols on small screens */
   .delivery-features {
-    grid-template-columns: repeat(3, 1fr);
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .delivery-item {
+    flex: 1 0 40%;
+  }
+
+  /* Reviews */
+  .reviews-section {
+    margin-top: 24px;
+    padding-top: 16px;
+  }
+
+  .review-form {
+    padding: 16px;
+  }
+
+  .star-btn {
+    font-size: 32px; /* Bigger touch targets */
+  }
+
+  .spec-table td {
+    font-size: 12px;
+    padding: 8px 10px;
   }
 }

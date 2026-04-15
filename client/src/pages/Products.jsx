@@ -234,7 +234,7 @@ const Products = () => {
                       <span>{g}</span>
                     </label>
                   ))}
-                  <label className="filter-option">
+                  <label className={`filter-option ${!gender ? 'active' : ''}`}>
                     <input
                       type="radio"
                       name="gender_select"
@@ -260,7 +260,7 @@ const Products = () => {
                   visibleCategories.map(cat => (
                     <label
                       key={cat._id}
-                      className={`filter-option ${cat.parent ? 'is-child' : ''}`}
+                      className={`filter-option ${cat.parent ? 'is-child' : ''} ${filters.category === cat._id ? 'active' : ''}`}
                     >
                       <input
                         type="radio"
@@ -285,7 +285,7 @@ const Products = () => {
               <h4>Brand</h4>
               <div className="filter-options">
                 {brands.map(brand => (
-                  <label key={brand} className="filter-option">
+                  <label key={brand} className={`filter-option ${filters.brand === brand ? 'active' : ''}`}>
                     <input
                       type="radio"
                       name="brand"

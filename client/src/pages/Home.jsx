@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { FiArrowRight, FiUser, FiHeart, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { FiArrowRight, FiUser, FiHeart, FiChevronLeft, FiChevronRight, FiFilter, FiX } from 'react-icons/fi';
 import API from '../utils/api';
 import ProductCard from '../components/ProductCard';
 import Loader from '../components/Loader';
@@ -8,31 +8,51 @@ import { useSettings } from '../context/SettingsContext';
 import './Home.css';
 
 // Local Sub-component with Vertical Sidebar Filters (Reference Based)
-const ProductSection = ({ title, viewAllLink, collections, selectedTag, onTagChange, products, loading, scrollRef, onScroll }) => (
-  <section className="section">
-    <div className="container">
-      <div className="section-header">
-        <h2 className="section-title">{title}</h2>
-        <Link to={viewAllLink} className="view-all">
-          View All <FiArrowRight />
-        </Link>
-      </div>
+const ProductSection = ({ title, viewAllLink, collections, selectedTag, onTagChange, products, loading, scrollRef, onScroll }) => {
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
 
-      <div className="section-body">
-        <aside className="section-sidebar">
+  return (
+    <section className="section">
+      <div className="container">
+        <div className="section-header">
+          <h2 className="section-title">{title}</h2>
+          <button 
+            className="mobile-filter-toggle" 
+            onClick={() => setShowMobileFilters(true)}
+          >
+            <FiFilter /> Categories
+          </button>
+          <Link to={viewAllLink} className="view-all">
+            View All <FiArrowRight />
+          </Link>
+        </div>
+
+        {/* Mobile Overlay */}
+        {showMobileFilters && (
+          <div className="sidebar-overlay" onClick={() => setShowMobileFilters(false)}></div>
+        )}
+
+        <aside className={`section-sidebar ${showMobileFilters ? 'show' : ''}`}>
           <div className="sidebar-header">
-            <span className="sidebar-title">Filters</span>
-            {selectedTag && <span className="sidebar-badge">1</span>}
+            <span className="sidebar-title">Categories</span>
+            <button 
+              className="close-sidebar-btn" 
+              onClick={() => setShowMobileFilters(false)}
+            >
+              <FiX />
+            </button>
           </div>
 
           <div className="sidebar-group">
-            <label className="group-label">CATEGORY</label>
             <div className="filter-list-vertical">
               {collections.map((col) => (
                 <button
                   key={col.name}
                   className={`filter-item-v ${selectedTag === col.value ? 'active' : ''}`}
-                  onClick={() => onTagChange(col.value)}
+                  onClick={() => {
+                    onTagChange(col.value);
+                    setShowMobileFilters(false);
+                  }}
                 >
                   <span className="radio-circle"></span>
                   <span className="filter-name">{col.name}</span>
@@ -42,29 +62,36 @@ const ProductSection = ({ title, viewAllLink, collections, selectedTag, onTagCha
           </div>
         </aside>
 
-        <div className="section-content" style={{ opacity: loading ? 0.4 : 1, pointerEvents: loading ? 'none' : 'auto', transition: 'all 0.3s ease' }}>
-          <div className="scroll-row-container">
-            <button className="scroll-nav-btn prev" onClick={() => onScroll('left')} aria-label="Previous">
-              <FiChevronLeft />
-            </button>
-            <div className="scroll-row" ref={scrollRef}>
-              {products.length > 0 ? (
-                products.map((product) => (
-                  <ProductCard key={product._id} product={product} />
-                ))
-              ) : (
-                <div className="no-products">No products found.</div>
-              )}
+        {/* Section body with arrows at this level for consistent edge placement */}
+        <div className="section-body">
+          {/* Left arrow at SECTION level so it's always at true screen edge */}
+          <button className="scroll-nav-btn prev" onClick={() => onScroll('left')} aria-label="Previous">
+            <FiChevronLeft />
+          </button>
+
+          <div className="section-content" style={{ opacity: loading ? 0.4 : 1, pointerEvents: loading ? 'none' : 'auto', transition: 'all 0.3s ease' }}>
+            <div className="scroll-row-container">
+              <div className="scroll-row" ref={scrollRef}>
+                {products.length > 0 ? (
+                  products.map((product) => (
+                    <ProductCard key={product._id} product={product} />
+                  ))
+                ) : (
+                  <div className="no-products">No products found.</div>
+                )}
+              </div>
             </div>
-            <button className="scroll-nav-btn next" onClick={() => onScroll('right')} aria-label="Next">
-              <FiChevronRight />
-            </button>
           </div>
+
+          {/* Right arrow at SECTION level so it's always at true screen edge */}
+          <button className="scroll-nav-btn next" onClick={() => onScroll('right')} aria-label="Next">
+            <FiChevronRight />
+          </button>
         </div>
       </div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};
 
 const Home = () => {
   const { settings } = useSettings();
@@ -117,7 +144,7 @@ const Home = () => {
 
   const scroll = (ref, direction) => {
     if (ref.current) {
-      const scrollAmount = 600;
+      const scrollAmount = ref.current.clientWidth;
       ref.current.scrollBy({ left: direction === 'left' ? -scrollAmount : scrollAmount, behavior: 'smooth' });
     }
   };

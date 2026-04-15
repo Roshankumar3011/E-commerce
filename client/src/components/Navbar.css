@@ -548,8 +548,8 @@
     width: auto;
   }
 
-  .nav-action-btn {
-    display: none !important; /* Hide cart, wishlist from top on mobile */
+  .nav-action-btn, .login-btn {
+    display: none !important; /* Hide cart, wishlist, and login from top on mobile */
   }
 
   .user-menu {

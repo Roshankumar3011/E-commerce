@@ -40,6 +40,13 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
+// Serve frontend (Vite build)
+app.use(express.static(path.join(__dirname, '../client/dist')));
+
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api')) return next();
+  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+});
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);

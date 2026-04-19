@@ -10,8 +10,6 @@ const Profile = () => {
   const { user, updateProfile, setUser, logout } = useAuth();
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({ name: user?.name || '', phone: user?.phone || '' });
-  const [changingPass, setChangingPass] = useState(false);
-  const [passForm, setPassForm] = useState({ currentPassword: '', newPassword: '' });
 
   const handleSave = async () => {
     try {
@@ -22,18 +20,7 @@ const Profile = () => {
     }
   };
 
-  const handleChangePassword = async (e) => {
-    e.preventDefault();
-    if (passForm.newPassword.length < 6) return toast.error('Password must be at least 6 characters');
-    try {
-      await API.put('/auth/change-password', passForm);
-      toast.success('Password changed successfully!');
-      setChangingPass(false);
-      setPassForm({ currentPassword: '', newPassword: '' });
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to change password');
-    }
-  };
+
 
   const handleAddAddress = async (e) => {
     e.preventDefault();
@@ -97,51 +84,32 @@ const Profile = () => {
             </div>
           </div>
 
-          <div className="mobile-quick-links">
-            <h3 className="section-title">Activity</h3>
-            <div className="quick-links-grid">
-              <Link to="/orders" className="quick-link-item">
-                <div className="link-icon orders"><FiPackage /></div>
-                <div className="link-text">
-                  <span>My Orders</span>
-                  <p>View, track or buy again</p>
-                </div>
-                <FiChevronRight className="link-arrow" />
-              </Link>
-              <Link to="/wishlist" className="quick-link-item">
-                <div className="link-icon wishlist"><FiHeart /></div>
-                <div className="link-text">
-                  <span>My Wishlist</span>
-                  <p>Items you've saved</p>
-                </div>
-                <FiChevronRight className="link-arrow" />
-              </Link>
-            </div>
-
-            <div className="profile-actions-mobile">
-              {user?.role === 'admin' && (
-                <Link to="/admin" className="btn btn-outline btn-block">Admin Panel</Link>
-              )}
-            </div>
-          </div>
 
           <div className="profile-right">
-            {/* Change Password */}
-            <div className="card" style={{ padding: 24 }}>
-              <h3 style={{ marginBottom: 16 }}>🔒 Change Password</h3>
-              {changingPass ? (
-                <form onSubmit={handleChangePassword} style={{display:'flex',flexDirection:'column',gap:12}}>
-                  <div className="input-group"><label>Current Password</label><input type="password" value={passForm.currentPassword} onChange={(e) => setPassForm({...passForm,currentPassword:e.target.value})} /></div>
-                  <div className="input-group"><label>New Password</label><input type="password" value={passForm.newPassword} onChange={(e) => setPassForm({...passForm,newPassword:e.target.value})} /></div>
-                  <div style={{display:'flex',gap:8}}>
-                    <button type="submit" className="btn btn-primary btn-sm">Update</button>
-                    <button type="button" className="btn btn-ghost btn-sm" onClick={() => setChangingPass(false)}>Cancel</button>
+            {/* Quick Activity Section (Orders/Wishlist) - Now always visible */}
+            <div className="profile-activity-section">
+              <h3 className="section-title">My Activity</h3>
+              <div className="activity-links-grid">
+                <Link to="/orders" className="activity-link-item">
+                  <div className="link-icon orders"><FiPackage /></div>
+                  <div className="link-text">
+                    <span>My Orders</span>
+                    <p>View, track or buy again</p>
                   </div>
-                </form>
-              ) : (
-                <button className="btn btn-outline btn-sm" onClick={() => setChangingPass(true)}>Change Password</button>
-              )}
+                  <FiChevronRight className="link-arrow" />
+                </Link>
+                <Link to="/wishlist" className="activity-link-item">
+                  <div className="link-icon wishlist"><FiHeart /></div>
+                  <div className="link-text">
+                    <span>My Wishlist</span>
+                    <p>Items you've saved</p>
+                  </div>
+                  <FiChevronRight className="link-arrow" />
+                </Link>
+              </div>
             </div>
+
+
 
             {/* Addresses */}
             <div className="card" style={{ padding: 24 }}>

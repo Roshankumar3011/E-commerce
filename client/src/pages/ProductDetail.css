@@ -84,6 +84,7 @@
 .gallery-main.zoom-container {
   cursor: zoom-in;
   overflow: hidden;
+  position: relative;
 }
 
 .gallery-main img {
@@ -240,9 +241,10 @@
 }
 
 .size-btn-detail.active {
-  background: var(--primary);
-  border-color: var(--primary);
-  color: white;
+  background: white;
+  border-color: #2874f0;
+  color: #2874f0;
+  border-width: 2px;
 }
 
 .size-btn-detail.disabled {
@@ -522,23 +524,24 @@
     font-size: 14px;
   }
 
-  /* Action buttons: full-width stacked */
+  /* Action buttons: full-width grouped */
   .detail-actions {
-    flex-direction: column;
+    flex-direction: row;
     gap: 10px;
     position: sticky;
-    bottom: 70px; /* Above the mobile tab bar */
+    bottom: 60px; /* Above the mobile tab bar */
     background: white;
-    padding: 12px 0;
     border-top: 1px solid var(--border-light);
     z-index: 50;
-    margin: 0 -12px;
-    padding: 12px;
+    margin: 0 -16px;
+    padding: 12px 16px;
+    box-shadow: 0 -4px 10px rgba(0,0,0,0.05);
   }
 
   .detail-actions .btn {
-    font-size: 15px;
-    padding: 14px;
+    flex: 1;
+    font-size: 14px;
+    padding: 14px 8px;
   }
 
   /* Delivery strip: wrap to 2 cols on small screens */
@@ -698,5 +701,86 @@
   .lightbox-img {
     height: auto;
     width: 100%;
+  }
+}
+
+/* Pincode Check Styling */
+.pincode-check-container {
+  padding: 16px;
+  background: #f8fafc;
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  margin: 10px 0;
+}
+
+.pincode-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.pin-icon {
+  color: var(--primary);
+}
+
+.pincode-input-group {
+  display: flex;
+  gap: 8px;
+}
+
+.pincode-input-group input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-size: 14px;
+  background: white;
+}
+
+.pincode-btn {
+  padding: 0 20px;
+  background: white;
+  border: 1.5px solid var(--primary);
+  color: var(--primary);
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.pincode-btn:hover {
+  background: var(--primary);
+  color: white;
+}
+
+.pincode-result {
+  margin-top: 10px;
+  font-size: 12px;
+  padding: 8px 12px;
+  border-radius: 6px;
+}
+
+.pincode-result.success {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.pincode-result.error {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.pincode-result strong {
+  font-weight: 700;
+}
+
+@media (max-width: 768px) {
+  .pincode-check-container {
+    margin: 10px 0;
   }
 }

@@ -50,7 +50,7 @@ const orderSchema = new mongoose.Schema({
   },
   paymentMethod: {
     type: String,
-    enum: ['COD', 'Razorpay', 'Dummy'],
+    enum: ['COD', 'Razorpay', 'Dummy', 'UPI', 'CARD', 'NET', 'Net Banking'],
     default: 'COD',
   },
   paymentStatus: {
@@ -93,8 +93,9 @@ const orderSchema = new mongoose.Schema({
 // Auto-generate order number
 orderSchema.pre('save', async function (next) {
   if (!this.orderNumber) {
-    const count = await mongoose.model('Order').countDocuments();
-    this.orderNumber = `FK${Date.now()}${String(count + 1).padStart(4, '0')}`;
+    const count = await this.constructor.countDocuments();
+    const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+    this.orderNumber = `FK${Date.now()}${random}${String(count + 1).padStart(4, '0')}`;
   }
   next();
 });

@@ -74,8 +74,20 @@ export const AuthProvider = ({ children }) => {
     return userData;
   };
 
+  const verifyOtp = async (receiver, code) => {
+    const res = await API.post('/auth/verify-otp', { receiver, code });
+    if (res.data.success && res.data.userExists) {
+      const { token, user: userData } = res.data;
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(userData));
+      setUser(userData);
+      toast.success(`Welcome back, ${userData.name}!`);
+    }
+    return res.data;
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, updateProfile, setUser, firebaseLogin }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, updateProfile, setUser, firebaseLogin, verifyOtp }}>
       {children}
     </AuthContext.Provider>
   );

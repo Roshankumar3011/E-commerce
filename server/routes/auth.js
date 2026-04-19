@@ -1,6 +1,10 @@
 const router = require('express').Router();
 const User = require('../models/User');
+const Otp = require('../models/Otp');
 const { protect } = require('../middleware/auth');
+const sendEmail = require('../utils/sendEmail');
+const sendSMS = require('../utils/sendSMS');
+const { admin } = require('../config/firebase-admin');
 
 // Register
 router.post('/register', async (req, res) => {
@@ -177,70 +181,138 @@ router.put('/change-password', protect, async (req, res) => {
   }
 });
 
-// Firebase Login & Registration logic
-router.post('/firebase-login', async (req, res) => {
+// Send OTP (Email or Phone)
+router.post('/send-otp', async (req, res) => {
   try {
-    const { token } = req.body;
-    let decodedToken;
-    let uid, email, phone, name;
-
-    if (!process.env.FIREBASE_PROJECT_ID) {
-      // Dummy Mode: Parse from raw base64 or just use test values
-      // Standard JWT has 3 parts. Let's just mock it if it's "dummy_token"
-      decodedToken = {
-        uid: 'dummy_' + Date.now(),
-        phone_number: req.body.phone || undefined,
-        email: req.body.email || undefined,
-        name: req.body.name || 'Test User'
-      };
-    } else {
-      const { admin } = require('../config/firebase-admin');
-      if (!admin) return res.status(500).json({ success: false, message: 'Firebase not configured properly' });
-      decodedToken = await admin.auth().verifyIdToken(token);
+    const { receiver, type } = req.body;
+    if (!receiver || !type) {
+      return res.status(400).json({ success: false, message: 'Please provide receiver and type' });
     }
-    
-    uid = decodedToken.uid;
-    email = decodedToken.email;
-    phone = decodedToken.phone_number;
-    name = decodedToken.name || (email ? email.split('@')[0] : 'User');
 
-    // Find User by Firebase UID first
-    let user = await User.findOne({ firebaseUid: uid }).select('+password');
-    
-    // If not found, attempt to link via email or phone
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+
+    await Otp.findOneAndUpdate(
+      { receiver },
+      { code, type, expiresAt: new Date(Date.now() + 10 * 60 * 1000) },
+      { upsert: true, new: true }
+    );
+
+    if (type === 'email') {
+      await sendEmail({
+        email: receiver,
+        subject: 'Balajee Store - Your Verification Code',
+        message: `Your verification code is ${code}. It is valid for 10 minutes.`,
+        html: `<h3>Verification Code</h3><p>Your code is <strong>${code}</strong>. It expires in 10 minutes.</p>`
+      });
+    } else {
+      await sendSMS({ number: receiver, code });
+    }
+
+    res.json({ success: true, message: 'OTP sent successfully' });
+  } catch (error) {
+    console.error('Send OTP Error:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Verify OTP
+router.post('/verify-otp', async (req, res) => {
+  try {
+    const { receiver, code } = req.body;
+    if (!receiver || !code) {
+      return res.status(400).json({ success: false, message: 'Please provide receiver and code' });
+    }
+
+    const otpData = await Otp.findOne({ receiver, code });
+    if (!otpData) {
+      return res.status(400).json({ success: false, message: 'Invalid or expired OTP' });
+    }
+
+    await Otp.deleteOne({ _id: otpData._id });
+
+    let user = await User.findOne({ $or: [{ email: receiver }, { phone: receiver }] });
+
     if (!user) {
-      if (email) user = await User.findOne({ email }).select('+password');
-      else if (phone) user = await User.findOne({ phone }).select('+password');
-      
-      if (user) {
-        // Link account
-        user.firebaseUid = uid;
-        // Optionally update missing info
-        if (!user.phone && phone) user.phone = phone;
-        await user.save();
-      } else {
-        // Create new user
-        user = await User.create({
-          name,
-          email,
-          phone,
-          firebaseUid: uid,
-          // Generate dummy password to satisfy any legacy hooks, though we made it optional
-          password: 'fb_' + Math.random().toString(36).slice(-8)
-        });
-      }
+      return res.json({ 
+        success: true, 
+        message: 'OTP verified. New user.', 
+        userExists: false 
+      });
     }
 
     if (!user.isActive) {
-      return res.status(403).json({ success: false, message: 'Account has been deactivated' });
+      return res.status(403).json({ success: false, message: 'Account is deactivated' });
     }
 
-    // Generate App Token using existing logic
-    const appToken = user.generateToken();
+    const token = user.generateToken();
+    res.json({
+      success: true,
+      message: 'Logged in successfully',
+      userExists: true,
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        phone: user.phone,
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Firebase/Google Login
+router.post('/firebase-login', async (req, res) => {
+  try {
+    const { token } = req.body;
+    if (!token) {
+      return res.status(400).json({ success: false, message: 'No token provided' });
+    }
+
+    let decodedToken;
+    try {
+      const { getIsFirebaseInitialized } = require('../config/firebase-admin');
+      
+      if (getIsFirebaseInitialized()) {
+        decodedToken = await admin.auth().verifyIdToken(token);
+      } else {
+        console.warn('⚠️ Firebase initialization check failed in login route.');
+        return res.status(503).json({ 
+          success: false, 
+          message: 'Firebase authentication is not fully configured. Please check your server/.env file for FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL and FIREBASE_PRIVATE_KEY.' 
+        });
+      }
+    } catch (err) {
+      console.error('Firebase Token Error:', err.message);
+      return res.status(401).json({ success: false, message: 'Invalid Firebase token' });
+    }
+
+    const { email, name, picture } = decodedToken;
+
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      user = await User.create({
+        name: name || 'Google User',
+        email: email,
+        password: Math.random().toString(36).slice(-10),
+        avatar: picture,
+        role: 'user',
+        isActive: true
+      });
+    }
+
+    if (!user.isActive) {
+      return res.status(403).json({ success: false, message: 'Account is deactivated' });
+    }
+
+    const jwtToken = user.generateToken();
 
     res.json({
       success: true,
-      token: appToken,
+      token: jwtToken,
       user: {
         id: user._id,
         name: user.name,
@@ -251,7 +323,8 @@ router.post('/firebase-login', async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error('Firebase Login Error:', error);
+    res.status(500).json({ success: false, message: 'Firebase login failed' });
   }
 });
 

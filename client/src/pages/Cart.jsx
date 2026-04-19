@@ -1,12 +1,18 @@
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FiTrash2, FiPlus, FiMinus, FiShoppingBag, FiArrowRight } from 'react-icons/fi';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import { getProductImage } from '../utils/assets';
+import AuthDrawer from '../components/AuthDrawer';
+import toast from 'react-hot-toast';
 import './Cart.css';
 
 const Cart = () => {
   const { cart, updateQuantity, removeFromCart } = useCart();
+  const { user } = useAuth();
   const navigate = useNavigate();
+  const [showAuthDrawer, setShowAuthDrawer] = useState(false);
 
   if (!cart.items || cart.items.length === 0) {
     return (
@@ -47,6 +53,19 @@ const Cart = () => {
   const discount = totalOriginal - subtotal;
   const shipping = subtotal >= 499 ? 0 : 40;
   const total = subtotal + shipping;
+
+  const handlePlaceOrder = () => {
+    if (!user) {
+      if (window.innerWidth > 768) {
+        setShowAuthDrawer(true);
+      } else {
+        toast.error('Please login to continue to checkout');
+        navigate('/login?redirect=/checkout');
+      }
+    } else {
+      navigate('/checkout');
+    }
+  };
 
   return (
     <div className="cart-page animate-fadeIn">
@@ -129,12 +148,18 @@ const Cart = () => {
               <p className="savings-text">You will save ₹{discount.toLocaleString()} on this order</p>
             )}
 
-            <button className="btn btn-secondary btn-lg btn-block" onClick={() => navigate('/checkout')}>
+            <button className="btn btn-secondary btn-lg btn-block" onClick={handlePlaceOrder}>
               Place Order <FiArrowRight />
             </button>
           </div>
         </div>
       </div>
+
+      <AuthDrawer 
+        isOpen={showAuthDrawer} 
+        onClose={() => setShowAuthDrawer(false)} 
+        onSuccess={() => navigate('/checkout')} 
+      />
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { FiMail, FiPhone, FiMapPin } from 'react-icons/fi';
+import { FiMail, FiPhone, FiMapPin, FiArrowUp } from 'react-icons/fi';
 import { useSettings } from '../context/SettingsContext';
 import './Footer.css';
 
@@ -8,6 +8,13 @@ const Footer = () => {
 
   return (
     <footer className="footer">
+      <button 
+        className="back-to-top-fab" 
+        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        aria-label="Back to top"
+      >
+        <FiArrowUp />
+      </button>
       <div className="footer-top">
         <div className="container">
           <div className="footer-grid">

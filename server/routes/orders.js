@@ -15,18 +15,23 @@ router.post('/', protect, async (req, res) => {
     }
 
     // Build order items with price at purchase
-    const orderItems = cart.items.map((item) => ({
-      product: item.product._id,
-      name: item.product.name,
-      image: item.product.images?.[0] || '',
-      size: item.size,
-      color: item.color,
-      quantity: item.quantity,
-      priceAtPurchase: item.product.price,
-      totalPrice: item.product.price * item.quantity,
-    }));
+    const orderItems = cart.items.map((item) => {
+      if (!item.product) {
+        throw new Error(`Product not found for item in cart`);
+      }
+      return {
+        product: item.product._id,
+        name: item.product.name,
+        image: item.product.images?.[0] || '',
+        size: item.size,
+        ...(item.color && { color: item.color }),
+        quantity: item.quantity,
+        priceAtPurchase: item.price || item.product.price || 0,
+        totalPrice: (item.price || item.product.price || 0) * item.quantity,
+      };
+    });
 
-    const subtotal = orderItems.reduce((sum, item) => sum + item.totalPrice, 0);
+    const subtotal = orderItems.reduce((sum, item) => sum + (item.totalPrice || 0), 0);
     const shippingCharge = subtotal >= 499 ? 0 : 40;
     const totalAmount = subtotal + shippingCharge;
 
@@ -35,7 +40,7 @@ router.post('/', protect, async (req, res) => {
       items: orderItems,
       shippingAddress,
       paymentMethod,
-      paymentStatus: paymentMethod === 'COD' ? 'Pending' : 'Pending',
+      paymentStatus: 'Pending',
       orderStatus: 'Pending',
       statusHistory: [{ status: 'Pending', note: 'Order placed' }],
       subtotal,
@@ -45,7 +50,11 @@ router.post('/', protect, async (req, res) => {
 
     // Update stock
     for (const item of cart.items) {
+      if (!item.product) continue;
+      
       const product = await Product.findById(item.product._id);
+      if (!product || !product.sizes) continue;
+
       const sizeIndex = product.sizes.findIndex((s) => s.size === item.size);
       if (sizeIndex > -1) {
         product.sizes[sizeIndex].stock = Math.max(0, product.sizes[sizeIndex].stock - item.quantity);
@@ -59,7 +68,12 @@ router.post('/', protect, async (req, res) => {
 
     res.status(201).json({ success: true, order });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error('Order Creation Error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: error.message || 'Internal Server Error',
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
   }
 });
 

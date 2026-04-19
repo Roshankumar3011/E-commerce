@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { FiShoppingCart, FiHeart, FiStar, FiTruck, FiRefreshCw, FiShield, FiChevronRight, FiX, FiChevronLeft, FiZap } from 'react-icons/fi';
+import { FiShoppingCart, FiHeart, FiStar, FiTruck, FiRefreshCw, FiShield, FiChevronRight, FiX, FiChevronLeft, FiZap, FiMapPin, FiShare2 } from 'react-icons/fi';
 import API from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { getProductImage } from '../utils/assets';
+import VariantDrawer from '../components/VariantDrawer';
 import toast from 'react-hot-toast';
 import './ProductDetail.css';
 
@@ -48,27 +49,45 @@ const ProductDetail = () => {
     fetchProduct();
   }, [id]);
 
+  const [pincode, setPincode] = useState('');
+  const [deliveryStatus, setDeliveryStatus] = useState(null);
+  const [showDrawer, setShowDrawer] = useState(false);
+
+  const checkPincode = (e) => {
+    e.preventDefault();
+    if (!pincode || pincode.length !== 6) {
+      return toast.error('Please enter a valid 6-digit pincode');
+    }
+    // Mock delivery check logic
+    if (pincode.startsWith('11') || pincode.startsWith('40') || pincode.startsWith('56')) {
+      setDeliveryStatus({ available: true, date: 'Tomorrow' });
+    } else {
+      setDeliveryStatus({ available: true, date: 'in 3-4 Days' });
+    }
+    toast.success('Pincode verified');
+  };
+
   const handleAddToCart = () => {
-    if (!user) {
-      toast.error('Please login first');
-      return navigate('/login');
-    }
     if (!selectedSize) {
-      return toast.error('Please select a size');
+      setShowDrawer(true);
+    } else {
+      addToCart(product, selectedSize, selectedColor);
     }
-    addToCart(product._id, selectedSize, selectedColor);
   };
 
   const handleBuyNow = () => {
-    if (!user) {
-      toast.error('Please login first');
-      return navigate('/login');
+    if (selectedSize) {
+      addToCart(product, selectedSize, selectedColor);
+      navigate('/cart');
+    } else {
+      setShowDrawer(true);
     }
-    if (!selectedSize) {
-      return toast.error('Please select a size');
-    }
-    addToCart(product._id, selectedSize, selectedColor);
-    navigate('/cart');
+  };
+
+  const handleConfirmAdd = (size, color) => {
+    addToCart(product, size, color);
+    if (size) setSelectedSize(size);
+    if (color) setSelectedColor(color);
   };
 
   const handleSubmitReview = async (e) => {
@@ -207,6 +226,41 @@ const ProductDetail = () => {
               />
 
               {discount > 0 && <span className="detail-discount-badge">{discount}% OFF</span>}
+              
+              {/* Floating Actions on Image */}
+              <div className="gallery-floating-actions" style={{ position: 'absolute', top: '16px', right: '16px', display: 'flex', flexDirection: 'column', gap: '12px', zIndex: 10 }}>
+                <button 
+                  className={`floating-action-btn ${inWishlist ? 'active' : ''}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (!user) return toast.error('Please login to add to wishlist');
+                    toggleWishlist(product._id);
+                  }}
+                  style={{ background: 'white', border: 'none', borderRadius: '50%', width: '44px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', cursor: 'pointer', color: inWishlist ? '#ff3f6c' : '#333', transition: 'all 0.2s' }}
+                  title="Wishlist"
+                >
+                  <FiHeart fill={inWishlist ? '#ff3f6c' : 'none'} size={20} />
+                </button>
+                <button 
+                  className="floating-action-btn share-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (navigator.share) {
+                      navigator.share({
+                        title: product.name,
+                        url: window.location.href
+                      }).catch(console.error);
+                    } else {
+                      navigator.clipboard.writeText(window.location.href);
+                      toast.success('Link copied to clipboard!');
+                    }
+                  }}
+                  style={{ background: 'white', border: 'none', borderRadius: '50%', width: '44px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', cursor: 'pointer', color: '#333', transition: 'all 0.2s' }}
+                  title="Share"
+                >
+                  <FiShare2 size={20} />
+                </button>
+              </div>
             </div>
           </div>
 
@@ -280,14 +334,35 @@ const ProductDetail = () => {
               </button>
             </div>
 
-            {user && (
-              <button
-                className={`wishlist-toggle-btn ${inWishlist ? 'active' : ''}`}
-                onClick={() => toggleWishlist(product._id)}
-              >
-                <FiHeart /> {inWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
-              </button>
-            )}
+
+
+            {/* Pincode Check */}
+            <div className="pincode-check-container">
+              <div className="pincode-header">
+                <FiMapPin className="pin-icon" />
+                <span>Check Delivery Availability</span>
+              </div>
+              <form className="pincode-input-group" onSubmit={checkPincode}>
+                <input 
+                  type="text" 
+                  placeholder="Enter Pincode" 
+                  value={pincode}
+                  onChange={(e) => setPincode(e.target.value.replace(/\D/g, '').slice(0,6))}
+                />
+                <button type="submit" className="pincode-btn">Check</button>
+              </form>
+              {deliveryStatus && (
+                <div className={`pincode-result ${deliveryStatus.available ? 'success' : 'error'}`}>
+                  {deliveryStatus.available ? (
+                    <p>Delivering to this location. Delivery <strong>{deliveryStatus.date}</strong></p>
+                  ) : (
+                    <p>Not available at this location.</p>
+                  )}
+                </div>
+              )}
+            </div>
+
+
 
             {/* Delivery Features */}
             <div className="delivery-features">
@@ -442,6 +517,13 @@ const ProductDetail = () => {
           </button>
         </div>
       )}
+
+      <VariantDrawer 
+        isOpen={showDrawer}
+        onClose={() => setShowDrawer(false)}
+        product={product}
+        onConfirm={handleConfirmAdd}
+      />
     </div>
   );
 };

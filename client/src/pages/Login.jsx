@@ -1,46 +1,86 @@
-import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { FiMail, FiLock, FiEye, FiEyeOff, FiPhone, FiUser, FiKey } from 'react-icons/fi';
 import { FcGoogle } from 'react-icons/fc';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
-import { auth, googleProvider } from '../firebase';
-import { signInWithPopup, RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
+import API from '../utils/api';
 import './Auth.css';
 
 const Login = () => {
   const navigate = useNavigate();
-  const { login, firebaseLogin } = useAuth();
+  const location = useLocation();
+  const redirectParams = new URLSearchParams(location.search).get('redirect') || '/';
+  const { login, firebaseLogin, verifyOtp } = useAuth();
   
-  const [authMode, setAuthMode] = useState('email'); // 'email', 'phone', 'otp'
-  
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPass, setShowPass] = useState(false);
-  
-  const [phone, setPhone] = useState('');
+  const [authMode, setAuthMode] = useState('input'); // 'input', 'otp'
+  const [contact, setContact] = useState(''); // Holds email or phone
   const [otp, setOtp] = useState('');
-  const [confirmationResult, setConfirmationResult] = useState(null);
-
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (!window.recaptchaVerifier) {
-      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-        'size': 'invisible'
-      });
-    }
-  }, []);
+  const validateEmail = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+  const validatePhone = (p) => /^[0-9]{10}$/.test(p);
 
-  const handleEmailLogin = async (e) => {
-    e.preventDefault();
-    if (!email || !password) return toast.error('Please fill all fields');
+  const handleDemoLogin = async (demoEmail, demoPass) => {
     try {
       setLoading(true);
-      const user = await login(email, password);
-      navigate(user.role === 'admin' ? '/admin' : '/');
+      const user = await login(demoEmail, demoPass);
+      navigate(user.role === 'admin' ? '/admin' : redirectParams);
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Login failed');
+      toast.error('Demo Login failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSendOtp = async (e) => {
+    e.preventDefault();
+    const isEmail = validateEmail(contact);
+    const isPhone = validatePhone(contact);
+
+    if (isPhone) {
+      return toast.error('Mobile login coming soon! Please use Email for now.', { icon: '🚧' });
+    }
+
+    if (!isEmail) {
+      return toast.error('Please enter a valid email address');
+    }
+
+    const type = 'email';
+
+    try {
+      setLoading(true);
+      const res = await API.post('/auth/send-otp', { receiver: contact, type });
+      if (res.data.success) {
+        setAuthMode('otp');
+        toast.success(`OTP sent to your ${type}`);
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to send OTP');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    if (!otp) return toast.error('Please enter the 6-digit OTP');
+    
+    try {
+      setLoading(true);
+      const data = await verifyOtp(contact, otp);
+      
+      if (data.success) {
+        if (!data.userExists) {
+          toast.success('Verified! Please complete registration.');
+          const isPhone = validatePhone(contact);
+          navigate(`/register?${isPhone ? 'phone' : 'email'}=${contact}`);
+        } else {
+          navigate(data.user.role === 'admin' ? '/admin' : redirectParams);
+        }
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Verification failed');
     } finally {
       setLoading(false);
     }
@@ -49,69 +89,13 @@ const Login = () => {
   const handleGoogleLogin = async () => {
     try {
       setLoading(true);
-      // Dummy bypass if Firebase isn't properly configured yet but user clicks
-      if (import.meta.env.VITE_FIREBASE_API_KEY === "AIzaSyDummyKeyForDevelopmentPurposes") {
-        await firebaseLogin("dummy_google_token");
-        navigate('/');
-        return;
-      }
-      
+      const { signInWithPopup, googleProvider, auth } = await import('../firebase');
       const result = await signInWithPopup(auth, googleProvider);
       const token = await result.user.getIdToken();
       const user = await firebaseLogin(token);
-      navigate(user.role === 'admin' ? '/admin' : '/');
+      navigate(user.role === 'admin' ? '/admin' : redirectParams);
     } catch (err) {
       toast.error(err.message || 'Google Auth failed');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSendOtp = async (e) => {
-    e.preventDefault();
-    if (!phone) return toast.error('Please enter a valid phone number');
-    try {
-      setLoading(true);
-      
-      if (import.meta.env.VITE_FIREBASE_API_KEY === "AIzaSyDummyKeyForDevelopmentPurposes") {
-        // Mock SMS sent
-        setConfirmationResult({ mock: true });
-        setAuthMode('otp');
-        toast.success('Mock OTP sent (Any code works)');
-        return;
-      }
-
-      const formattedPhone = phone.startsWith('+') ? phone : '+91' + phone;
-      const appVerifier = window.recaptchaVerifier;
-      const confirmation = await signInWithPhoneNumber(auth, formattedPhone, appVerifier);
-      setConfirmationResult(confirmation);
-      setAuthMode('otp');
-      toast.success('OTP sent successfully');
-    } catch (err) {
-      toast.error(err.message || 'Failed to send OTP');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleVerifyOtp = async (e) => {
-    e.preventDefault();
-    if (!otp) return toast.error('Please enter the OTP');
-    try {
-      setLoading(true);
-      
-      if (confirmationResult?.mock) {
-         await firebaseLogin("dummy_phone_token");
-         navigate('/');
-         return;
-      }
-
-      const result = await confirmationResult.confirm(otp);
-      const token = await result.user.getIdToken();
-      const user = await firebaseLogin(token);
-      navigate(user.role === 'admin' ? '/admin' : '/');
-    } catch (err) {
-      toast.error('Invalid OTP');
     } finally {
       setLoading(false);
     }
@@ -131,64 +115,35 @@ const Login = () => {
           </div>
         </div>
         <div className="auth-right">
-          <div id="recaptcha-container"></div>
           
-          <div className="auth-tabs stagger-in stagger-delay-1" style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
-            <button type="button" className={`btn ${authMode === 'email' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setAuthMode('email')}>Email</button>
-            <button type="button" className={`btn ${authMode === 'phone' || authMode === 'otp' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setAuthMode('phone')}>Phone OTP</button>
+          <div className="demo-logins stagger-in stagger-delay-1" style={{ display: 'flex', gap: '10px', marginBottom: '24px' }}>
+            <button type="button" className="btn btn-outline btn-sm flex-1" onClick={() => handleDemoLogin('john@example.com', 'user123')} disabled={loading}>
+              <FiUser /> Demo User
+            </button>
+            <button type="button" className="btn btn-outline btn-sm flex-1" onClick={() => handleDemoLogin('admin@flipkart.com', 'admin123')} disabled={loading}>
+              <FiKey /> Demo Admin
+            </button>
           </div>
 
-          {authMode === 'email' && (
-            <form onSubmit={handleEmailLogin} className="auth-form">
+          {authMode === 'input' && (
+            <form onSubmit={handleSendOtp} className="auth-form">
               <div className="auth-input-group stagger-in stagger-delay-1">
                 <FiMail className="auth-input-icon" />
                 <input
-                  type="email" placeholder="Email Address"
-                  value={email} onChange={(e) => setEmail(e.target.value)}
+                  type="text" placeholder="Enter Email Address"
+                  value={contact} onChange={(e) => setContact(e.target.value)}
                 />
               </div>
-              <div className="auth-input-group stagger-in stagger-delay-2">
-                <FiLock className="auth-input-icon" />
-                <input
-                  type={showPass ? 'text' : 'password'} placeholder="Password"
-                  value={password} onChange={(e) => setPassword(e.target.value)}
-                />
-                <button type="button" className="pass-toggle" onClick={() => setShowPass(!showPass)}>
-                  {showPass ? <FiEyeOff /> : <FiEye />}
-                </button>
-              </div>
-              <div className="demo-logins stagger-in stagger-delay-2" style={{margin: '10px 0'}}>
-                <button type="button" className="demo-btn" onClick={() => { setEmail('john@example.com'); setPassword('user123'); }}>
-                  <FiUser size={12} /> Demo User
-                </button>
-                <button type="button" className="demo-btn" onClick={() => { setEmail('admin@flipkart.com'); setPassword('admin123'); }}>
-                  <FiKey size={12} /> Demo Admin
-                </button>
-              </div>
+              <p className="auth-notice stagger-in stagger-delay-2">By continuing, you agree to Balajee's Terms of Use and Privacy Policy.</p>
               <button type="submit" className="btn btn-primary btn-lg btn-block stagger-in stagger-delay-3" disabled={loading}>
-                {loading ? 'Logging in...' : 'Login with Email'}
+                {loading ? 'Requesting...' : 'Request OTP'}
               </button>
             </form>
           )}
 
-          {authMode === 'phone' && (
-             <form onSubmit={handleSendOtp} className="auth-form">
-                <div className="auth-input-group stagger-in stagger-delay-1">
-                  <FiPhone className="auth-input-icon" />
-                  <input
-                    type="tel" placeholder="Phone Number (e.g. 9876543210)"
-                    value={phone} onChange={(e) => setPhone(e.target.value)}
-                  />
-                </div>
-                <button type="submit" className="btn btn-primary btn-lg btn-block stagger-in stagger-delay-2" disabled={loading}>
-                  {loading ? 'Requesting...' : 'Send OTP'}
-                </button>
-             </form>
-          )}
-
           {authMode === 'otp' && (
              <form onSubmit={handleVerifyOtp} className="auth-form">
-                <p style={{marginBottom: '10px', fontSize:'14px', color: '#666'}}>OTP sent to {phone}</p>
+                <p style={{marginBottom: '10px', fontSize:'14px', color: '#666'}}>OTP sent to {contact}</p>
                 <div className="auth-input-group stagger-in stagger-delay-1">
                   <FiLock className="auth-input-icon" />
                   <input
@@ -197,7 +152,7 @@ const Login = () => {
                   />
                 </div>
                 <button type="submit" className="btn btn-primary btn-lg btn-block stagger-in stagger-delay-2" disabled={loading}>
-                  {loading ? 'Verifying...' : 'Verify & Login'}
+                  {loading ? 'Verifying...' : 'Verify OTP'}
                 </button>
              </form>
           )}

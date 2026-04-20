@@ -313,3 +313,20 @@
   .offer-slider-container { height: 52px; }
   .offer-text { font-size: 12px; }
 }
+
+/* ── Desktop (≥769px) ─────────────────────────────── */
+@media (min-width: 769px) {
+  .home-page { padding-top: 80px; }
+  .section { margin-bottom: 24px; }
+  .section-title { font-size: 24px; padding-bottom: 5px; }
+  .section-pills-row { padding: 8px 16px; margin-bottom: 16px; border-radius: 12px; }
+  .home-pill { padding: 0 16px; height: 32px; font-size: 14px; border-radius: 32px; }
+  .view-all { font-size: 14px; }
+  .scroll-row { gap: 16px; padding: 12px 4px 20px; }
+  .scroll-row .product-card { flex: 0 0 calc(20% - 13px); min-width: 220px; }
+  .scroll-nav-btn { width: 40px; height: 40px; font-size: 20px; }
+  .offer-slider-container { height: 120px; }
+  .offer-text { font-size: 24px; }
+  .offer-subtext { font-size: 14px; }
+  .offer-badge { padding: 4px 10px; font-size: 11px; top: 12px; right: 20px; }
+}

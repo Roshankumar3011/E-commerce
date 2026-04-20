@@ -41,11 +41,6 @@ const OrderSuccess = () => {
 
   return (
     <div className="order-success-page animate-fadeIn">
-      {/* Header */}
-      <div className="success-header">
-        <button className="back-btn" onClick={() => navigate('/')}><FiArrowLeft /></button>
-        <h1>Order Placed</h1>
-      </div>
 
       <div className="success-content container">
         {/* Confirmed Banner */}

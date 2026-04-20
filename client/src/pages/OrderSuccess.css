@@ -1,7 +1,8 @@
 .order-success-page {
   background: #f1f3f6;
   min-height: 100vh;
-  padding-bottom: 40px;
+  padding-bottom: 60px;
+  padding-top: 60px; /* Space for fixed Navbar */
 }
 
 .success-header {

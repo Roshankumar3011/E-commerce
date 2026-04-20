@@ -24,7 +24,7 @@ router.post('/', protect, async (req, res) => {
         name: item.product.name,
         image: item.product.images?.[0] || '',
         size: item.size,
-        ...(item.color && { color: item.color }),
+        color: item.color || (item.product.colors && item.product.colors.length > 0 ? item.product.colors[0] : { name: 'Standard', hexCode: '#000000' }),
         quantity: item.quantity,
         priceAtPurchase: item.price || item.product.price || 0,
         totalPrice: (item.price || item.product.price || 0) * item.quantity,

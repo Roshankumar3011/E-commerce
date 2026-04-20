@@ -618,6 +618,35 @@
   border-top: 1px solid #eee;
 }
 
+.desktop-continue-wrapper {
+  padding: 0 16px 16px;
+}
+
+.desktop-continue-btn {
+  width: 100%;
+  padding: 14px;
+  background: #fb641b; /* Flipkart-style Orange for desktop primary action */
+  color: white;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 15px;
+  text-transform: uppercase;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: all 0.2s;
+}
+
+.desktop-continue-btn:hover {
+  background: #f4511e;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.desktop-continue-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
 .safe-payments-hint {
   display: flex;
   gap: 12px;

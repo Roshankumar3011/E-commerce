@@ -26,7 +26,7 @@ const removeRecentSearch = (query) => {
 };
 
 const Navbar = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, loading: authLoading } = useAuth();
   const { settings } = useSettings();
   const { cartCount } = useCart();
   const navigate = useNavigate();
@@ -186,7 +186,9 @@ const Navbar = () => {
 
         {/* Actions */}
         <div className="navbar-actions">
-          {user ? (
+          {authLoading ? (
+            <div className="user-loading-skeleton" />
+          ) : user ? (
             <div className="user-menu" ref={dropdownRef}>
               <button className="user-btn" onClick={() => setShowDropdown(!showDropdown)}>
                 <FiUser />

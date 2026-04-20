@@ -322,6 +322,14 @@ const Checkout = () => {
               <div className="price-row"><span>Delivery Charges</span><span className={shipping === 0 ? 'free' : ''}>{shipping === 0 ? 'FREE' : `₹${shipping}`}</span></div>
               <div className="price-row total"><span>Total Amount</span><span>₹{total.toLocaleString()}</span></div>
             </div>
+
+            {/* Desktop-only Continue Button */}
+            <div className="desktop-continue-wrapper">
+              <button className="desktop-continue-btn" onClick={currentStep === 3 ? handleFinishOrder : handleNextStep} disabled={loading}>
+                {loading ? 'Processing...' : currentStep === 3 ? (paymentMethod === 'COD' ? 'PLACE ORDER (COD)' : `PAY ₹${total.toLocaleString()}`) : 'Continue'}
+              </button>
+            </div>
+
             <div className="savings-msg">
               <FiHeart /> You will save ₹{discount.toLocaleString()} on this order
             </div>

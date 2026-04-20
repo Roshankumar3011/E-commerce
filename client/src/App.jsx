@@ -39,15 +39,16 @@ const AdminRoute = ({ children }) => {
 };
 
 function App() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const location = useLocation();
   const isAdmin = user?.role === 'admin';
-  const isCheckoutPage = location.pathname.startsWith('/checkout') || location.pathname.startsWith('/order-success');
+  const isAdminPath = location.pathname.startsWith('/admin');
+  const isCheckoutPage = location.pathname.startsWith('/checkout');
 
   return (
     <div className="app">
       <ScrollToTop />
-      {!isAdmin && !isCheckoutPage && <Navbar />}
+      {!isAdminPath && !isCheckoutPage && <Navbar />}
       <main className={isAdmin ? 'admin-main' : 'main-content'}>
         <Routes>
           {/* Public Routes */}

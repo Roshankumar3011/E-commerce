@@ -99,6 +99,9 @@ productSchema.pre('save', function (next) {
   if (this.originalPrice && this.price) {
     this.discount = Math.round(((this.originalPrice - this.price) / this.originalPrice) * 100);
   }
+  if (!this.colors || this.colors.length === 0) {
+    this.colors = [{ name: 'Standard', hexCode: '#000000' }];
+  }
   next();
 });
 

@@ -10,8 +10,8 @@ const orderItemSchema = new mongoose.Schema({
   image: String,
   size: String,
   color: {
-    name: String,
-    hexCode: String,
+    name: { type: String, default: 'Standard' },
+    hexCode: { type: String, default: '#000000' },
   },
   quantity: {
     type: Number,
